@@ -74,3 +74,4 @@ crashlytics-build.properties
 /2.5D Game/Logs
 /2.5D Game/Temp
 /2.5D Game/Assets/.cursor
+*.md
