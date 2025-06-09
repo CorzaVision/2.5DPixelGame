@@ -70,3 +70,7 @@ crashlytics-build.properties
 # Temporary auto-generated Android Assets
 /[Aa]ssets/[Ss]treamingAssets/aa.meta
 /[Aa]ssets/[Ss]treamingAssets/aa/*
+/2.5D Game/Library
+/2.5D Game/Logs
+/2.5D Game/Temp
+/2.5D Game/Assets/.cursor
