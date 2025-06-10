@@ -21,6 +21,17 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private Color debugHitColor = Color.green;
     [SerializeField] private Color debugMissColor = Color.red;
 
+    [Header("Camera Settings")]
+    [SerializeField] private Camera mainCamera;  // Reference to the main camera
+
+    [Header("Health Settings")]
+    [SerializeField] private float maxHealth = 100f;
+    [SerializeField] private float currentHealth;
+    [SerializeField] private float healthRegenRate = 1f;
+    [SerializeField] private float healthRegenDelay = 1f;
+
+    
+
     // Components
     private Rigidbody rb;
     private PlayerInput playerInput;
@@ -42,6 +53,100 @@ public class PlayerController : MonoBehaviour
     public event Action OnJumped;
     public event Action<bool> OnSprintChanged;
     public event Action<bool> OnGroundedChanged;
+
+    public event Action<float> OnHealthChanged;
+    public event Action OnDeath;
+
+    private float lastDamageTime;
+    private bool isDead;
+
+
+
+    private void Start()
+    {
+        currentHealth = maxHealth;
+        if (showDebug) Debug.Log($"PlayerController initialized with maxHealth: {maxHealth}");
+    }
+
+    public Vector3 GetAttackDirection()
+    {
+        return transform.forward;
+    }
+
+
+
+    public void TakeDamage(float damage)
+    {
+        if (isDead) return;
+        currentHealth = Mathf.Max(currentHealth - damage, 0);
+        lastDamageTime = Time.time;
+
+        if (showDebug) Debug.Log($"Player took {damage} damage. Current health: {currentHealth}");
+
+        OnHealthChanged?.Invoke(currentHealth);
+
+        if (currentHealth <= 0)
+        {
+            Die();
+        }
+    }
+
+    public void Heal(float amount)
+    {
+        if (isDead) return;
+        currentHealth = Mathf.Min(currentHealth + amount, maxHealth);
+        if (showDebug) Debug.Log($"Player healed {amount} health. Current health: {currentHealth}");
+        OnHealthChanged?.Invoke(currentHealth);
+    }
+    
+
+    private void Update()
+    {
+        // Check if enough time has passed since last damage
+        if (Time.time - lastDamageTime >= healthRegenDelay)
+        {
+            RegenerateHealth();
+        }
+    }
+
+    private void RegenerateHealth()
+    {
+        if (currentHealth < maxHealth && !isDead)
+        {
+            float regenAmount = healthRegenRate * Time.deltaTime;
+            Heal(regenAmount);
+        }
+    }
+
+    private void Die()
+    {
+        isDead = true;
+        if (showDebug) Debug.Log("Player died!");
+        OnDeath?.Invoke();
+    }
+
+    public bool IsDead()
+    {
+        return isDead;
+    }
+
+    // Add this method to get health percentage
+    public float GetHealthPercentage()
+    {
+        return currentHealth / maxHealth;
+    }
+
+    // Add this method to get current health
+    public float GetCurrentHealth()
+    {
+        return currentHealth;
+    }
+
+    // Add this method to get max health
+    public float GetMaxHealth()
+    {
+        return maxHealth;
+    }
 
     private void Awake()
     {
@@ -69,6 +174,18 @@ public class PlayerController : MonoBehaviour
             rb.constraints = RigidbodyConstraints.FreezeRotation;
             rb.interpolation = RigidbodyInterpolation.Interpolate;
             rb.collisionDetectionMode = CollisionDetectionMode.Continuous;
+            rb.useGravity = true;
+            rb.isKinematic = false;
+        }
+
+        // Get main camera if not set
+        if (mainCamera == null)
+        {
+            mainCamera = Camera.main;
+            if (mainCamera == null)
+            {
+                Debug.LogError("No main camera found! Please assign a camera in the inspector.");
+            }
         }
     }
 
@@ -105,7 +222,7 @@ public class PlayerController : MonoBehaviour
     private void OnMovePerformed(InputAction.CallbackContext context)
     {
         moveInput = context.ReadValue<Vector2>();
-        if (showDebug) Debug.Log($"Movement input: {moveInput}");
+        if (showDebug) Debug.Log($"Movement input: {moveInput}, Magnitude: {moveInput.magnitude}");
     }
 
     private void OnMoveCanceled(InputAction.CallbackContext context)
@@ -189,21 +306,28 @@ public class PlayerController : MonoBehaviour
         Vector3 targetVelocity = movement * currentSpeed;
         targetVelocity.y = rb.linearVelocity.y;
 
+        // Add debug logging
+        if (showDebug)
+        {
+            Debug.Log($"Move Input: {moveInput}, Movement: {movement}, Target Velocity: {targetVelocity}");
+            Debug.Log($"Current Velocity: {rb.linearVelocity}, Grounded: {isGrounded}");
+        }
+
         // Smooth movement
         rb.linearVelocity = Vector3.SmoothDamp(rb.linearVelocity, targetVelocity, ref currentVelocity, movementSmoothing);
 
         // Rotate towards movement direction
         if (movement != Vector3.zero)
         {
-            targetRotation = Quaternion.LookRotation(movement).eulerAngles;
-            transform.rotation = Quaternion.Slerp(transform.rotation, 
-                Quaternion.Euler(0, targetRotation.y, 0), 
-                rotationSpeed * Time.fixedDeltaTime);
-        }
-
-        if (showDebug)
-        {
-            Debug.Log($"Velocity: {rb.linearVelocity}, Grounded: {isGrounded}");
+            // Calculate the target rotation based on movement direction
+            Quaternion targetRotation = Quaternion.LookRotation(movement);
+            
+            // Smoothly rotate towards the movement direction
+            transform.rotation = Quaternion.Slerp(
+                transform.rotation,
+                targetRotation,
+                rotationSpeed * Time.fixedDeltaTime
+            );
         }
     }
 }

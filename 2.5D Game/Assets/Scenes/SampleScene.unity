@@ -278,7 +278,13 @@ MonoBehaviour:
   groundLayer:
     serializedVersion: 2
     m_Bits: 8
+  jumpCooldown: 0.2
+  movementSmoothing: 0.1
+  rotationSpeed: 10
   showDebug: 1
+  debugRayColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  debugHitColor: {r: 0, g: 1, b: 0, a: 1}
+  debugMissColor: {r: 1, g: 0, b: 0, a: 1}
 --- !u!114 &285728280
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -305,7 +311,7 @@ MonoBehaviour:
       m_Calls: []
   m_ActionEvents: []
   m_NeverAutoSwitchControlSchemes: 0
-  m_DefaultControlScheme: Keyboard&Mouse
+  m_DefaultControlScheme: 
   m_DefaultActionMap: Player
   m_SplitScreenIndex: -1
   m_Camera: {fileID: 330585545}
@@ -537,13 +543,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 410087039}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.40821788, y: -0.23456968, z: 0.10938163, w: 0.8754261}
+  m_LocalRotation: {x: 0.27638367, y: 0.68563277, z: -0.3197157, w: 0.59270716}
   m_LocalPosition: {x: 0, y: 3, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
+  m_LocalEulerAnglesHint: {x: 50, y: 98.315, z: 0}
 --- !u!114 &410087042
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -646,10 +652,15 @@ MonoBehaviour:
   target: {fileID: 285728275}
   offset: {x: 0, y: 10, z: -10}
   smoothSpeed: 5
+  lookAheadFactor: 2
+  lookAheadSmoothTime: 0.5
   minZoom: 3
   maxZoom: 10
   zoomSpeed: 2
+  zoomSmoothTime: 0.3
   currentZoom: 5
+  showDebug: 1
+  debugColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
 --- !u!1 &832575517
 GameObject:
   m_ObjectHideFlags: 0
@@ -711,8 +722,8 @@ GameObject:
   - component: {fileID: 883942814}
   - component: {fileID: 883942813}
   - component: {fileID: 883942812}
-  m_Layer: 0
-  m_Name: Plane
+  m_Layer: 3
+  m_Name: Ground
   m_TagString: Solid Ground
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -803,7 +814,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 10, y: 10, z: 10}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}

@@ -5,16 +5,14 @@ TagManager:
   serializedVersion: 3
   tags:
   - Solid Ground
-  - Collide
-  - Solid Collision
   layers:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - Solid Ground
+  - Ground
   - Water
   - UI
-  - 
+  - Enemy
   - 
   - 
   - 
