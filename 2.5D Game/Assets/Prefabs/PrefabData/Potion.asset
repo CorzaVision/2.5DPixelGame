@@ -1,0 +1,50 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fd06d0bbb22a83b4596916f6d31030b9, type: 3}
+  m_Name: Potion
+  m_EditorClassIdentifier: 
+  itemID: 2
+  count: 5
+  maxCount: 5
+  itemLevel: 1
+  itemName: Health Potion
+  itemDescription: Health
+  itemIcon: 
+  itemType: 2
+  weaponSubType: 0
+  armorSubType: 0
+  consumableSubType: 0
+  questSubType: 0
+  weaponType: 0
+  weaponHand: 0
+  armorWeight: 0
+  weaponWeight: 0
+  itemRarity: 0
+  healthRestore: 5
+  manaRestore: 0
+  staminaRestore: 0
+  critChanceRestore: 0
+  damage: 20
+  weaponCritChance: 20
+  weaponCritDamage: 5
+  armor: 0
+  health: 0
+  mana: 0
+  stamina: 0
+  armorCritChance: 0
+  armorCritDamage: 0
+  questID: 0
+  questProgress: 0
+  questProgressMax: 0
+  questReward: 0
+  questRewardMax: 0
+  questRewardMin: 0

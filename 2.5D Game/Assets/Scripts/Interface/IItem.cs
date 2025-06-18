@@ -7,13 +7,36 @@ using UnityEngine;
     Consumable,
     Quest,
    }
-   public enum ItemSubType
+   public enum WeaponSubType
    {
     Sword,
     Bow,
     Axe,
     Shield,
    }
+
+   public enum ArmorSubType
+   {
+    Helmet,
+    Chestplate,
+    Leggings,
+    Boots,
+   }
+
+   public enum ConsumableSubType
+   {
+    Potion,
+    Food,
+    Scroll,
+   }
+
+   public enum QuestSubType
+   {
+    Quest,
+    QuestItem,
+   }
+
+
    public enum ItemCategory
    {
     Weapon,
@@ -28,6 +51,35 @@ using UnityEngine;
     Rare,
     Epic,
    }
+
+   public enum ArmorWeight
+   {
+    Light,
+    Medium,
+    Heavy,
+   }
+
+   public enum WeaponWeight
+   {
+    Light,
+    Medium,
+    Heavy,
+   }
+
+   public enum WeaponType
+   {
+    Melee,
+    Ranged,
+    Magic,
+   }
+
+   public enum WeaponHand
+   {
+    OneHanded,
+    TwoHanded,
+   }
+   
+
     public interface IItem
     {
         int itemID { get; set; }
@@ -38,7 +90,14 @@ using UnityEngine;
         string itemDescription { get; set; }
         string itemIcon { get; set; }
         ItemType itemType { get; set; }
-        ItemSubType itemSubType { get; set; }
         ItemRarity itemRarity { get; set; }
+        WeaponSubType weaponSubType { get; set; }
+        ArmorSubType armorSubType { get; set; }
+        ConsumableSubType consumableSubType { get; set; }
+        QuestSubType questSubType { get; set; }
+        WeaponType weaponType { get; set; }
+        WeaponHand weaponHand { get; set; }
+        ArmorWeight armorWeight { get; set; }
+        WeaponWeight weaponWeight { get; set; }
     }
 

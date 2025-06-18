@@ -1,0 +1,6 @@
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/Scripts/Inventory/InventoryUI.uss?fileID=7433441132597879392&amp;guid=de43a64dd7e264a4a9536045a1a84438&amp;type=3#InventoryUI" />
+    <ui:VisualElement name="inventory-root" style="flex-grow: 1;">
+        <ui:VisualElement name="item-list" style="flex-grow: 1;" />
+    </ui:VisualElement>
+</ui:UXML>
