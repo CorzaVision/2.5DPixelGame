@@ -72,14 +72,18 @@ public class PlayerStats : MonoBehaviour
 
     public void GainExperience(float amount)
     {
-        currentExperience += amount;
-        OnExperienceGained?.Invoke(currentExperience);
-        if (showDebug) Debug.Log($"Player gained {amount} experience. Current experience: {currentExperience}");
-        while (currentExperience >= experienceToNextLevel)
+
+        float remainingExperience = currentExperience + amount;
+        while (remainingExperience >= experienceToNextLevel)
         {
-            currentExperience -= experienceToNextLevel;
+            remainingExperience -= experienceToNextLevel;
             LevelUp();
         }
+        currentExperience = remainingExperience;
+        OnExperienceGained?.Invoke(currentExperience);
+
+
+        if (showDebug) Debug.Log($"Player gained {amount} experience. Current experience: {currentExperience}");
     }
 
     private void UpdateStats()

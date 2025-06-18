@@ -216,7 +216,9 @@ public class HealthBarUI : MonoBehaviour
         lastHealth = currentHealth;
 
         // Update the health slider value
-       healthSlider.value = currentHealth;
+        healthSlider.maxValue = playerStats.CurrentHealth;
+        healthSlider.value = currentHealth;
+       
 
        // Update the fill color based on the health percentage
        fillImage.color = healthGradient.Evaluate(healthSlider.normalizedValue);

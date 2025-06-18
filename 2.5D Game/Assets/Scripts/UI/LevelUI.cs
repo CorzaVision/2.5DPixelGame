@@ -9,6 +9,8 @@ public class LevelUI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI levelText;
     [SerializeField] private TextMeshProUGUI experienceText;
     [SerializeField] private Slider experienceBar;
+    [SerializeField] private Image experienceBarFillImage;
+    [SerializeField] private Gradient experienceBarColor;
 
     private PlayerStats playerStats;
 
@@ -63,6 +65,10 @@ public class LevelUI : MonoBehaviour
         if (experienceBar != null)
         {
             experienceBar.value = experience / playerStats.ExperienceToNextLevel;
+            if (experienceBarFillImage != null)
+            {
+                experienceBarFillImage.color = experienceBarColor.Evaluate(experienceBar.value);
+            }
         }
     }
 
