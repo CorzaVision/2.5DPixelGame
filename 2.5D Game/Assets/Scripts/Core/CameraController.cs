@@ -2,6 +2,10 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using System;
 
+/// <summary>
+/// Controls camera movement, following, zooming, and rotation for the 2.5D RPG game.
+/// This script provides smooth camera following with look-ahead, zoom controls, and rotation.
+/// </summary>
 public class CameraController : MonoBehaviour
 {
     [Header("Follow Settings")]
@@ -32,6 +36,8 @@ public class CameraController : MonoBehaviour
 
     // Components
     private InputAction zoomAction;
+    private InputAction rotateAction;
+    private InputAction lookAction;
     private Vector3 currentVelocity;
     private Vector3 lookAheadVelocity;
     private float zoomVelocity;
@@ -45,17 +51,49 @@ public class CameraController : MonoBehaviour
     // Add this variable with your other zoom settings
     private float targetZoom;  // Tracks the desired zoom level
 
-    void Start()
-    {
-        if (target != null)
-        {
-            // Don't override the currentZoom value
-            UpdateCameraPosition();
-        }
-        Debug.Log("CameraController started");
-    }
+    #region Unity Lifecycle
 
     private void Awake()
+    {
+        SetupInputActions();
+    }
+
+    private void Start()
+    {
+        InitializeCamera();
+    }
+
+    private void OnEnable()
+    {
+        SubscribeToInputEvents();
+        EnableInputActions();
+    }
+
+    private void OnDisable()
+    {
+        UnsubscribeFromInputEvents();
+        DisableInputActions();
+    }
+
+    private void LateUpdate()
+    {
+        UpdateCameraPosition();
+    }
+
+    private void OnDrawGizmos()
+    {
+        if (!showDebug || target == null) return;
+        DrawDebugGizmos();
+    }
+
+    #endregion
+
+    #region Initialization
+
+    /// <summary>
+    /// Sets up input actions from the Input System.
+    /// </summary>
+    private void SetupInputActions()
     {
         if (playerInput != null)
         {
@@ -71,44 +109,89 @@ public class CameraController : MonoBehaviour
         }
     }
 
-    private void OnEnable()
+    /// <summary>
+    /// Initializes the camera position and settings.
+    /// </summary>
+    private void InitializeCamera()
+    {
+        if (target != null)
+        {
+            // Don't override the currentZoom value
+            UpdateCameraPosition();
+        }
+        Debug.Log("CameraController started");
+    }
+
+    #endregion
+
+    #region Input Management
+
+    /// <summary>
+    /// Subscribes to all input events.
+    /// </summary>
+    private void SubscribeToInputEvents()
     {
         if (zoomAction != null)
         {
             zoomAction.performed += OnZoomPerformed;
-            zoomAction.Enable();
         }
         if (rotateAction != null)
         {
             rotateAction.performed += OnRotatePerformed;
-            rotateAction.Enable();
         }
         if (lookAction != null)
         {
             lookAction.performed += OnLookPerformed;
-            lookAction.Enable();
         }
     }
 
-    private void OnDisable()
+    /// <summary>
+    /// Unsubscribes from all input events.
+    /// </summary>
+    private void UnsubscribeFromInputEvents()
     {
         if (zoomAction != null)
         {
             zoomAction.performed -= OnZoomPerformed;
-            zoomAction.Disable();
         }
         if (rotateAction != null)
         {
             rotateAction.performed -= OnRotatePerformed;
-            rotateAction.Disable();
         }
         if (lookAction != null)
         {
             lookAction.performed -= OnLookPerformed;
-            lookAction.Disable();
         }
     }
 
+    /// <summary>
+    /// Enables all input actions.
+    /// </summary>
+    private void EnableInputActions()
+    {
+        if (zoomAction != null) zoomAction.Enable();
+        if (rotateAction != null) rotateAction.Enable();
+        if (lookAction != null) lookAction.Enable();
+    }
+
+    /// <summary>
+    /// Disables all input actions.
+    /// </summary>
+    private void DisableInputActions()
+    {
+        if (zoomAction != null) zoomAction.Disable();
+        if (rotateAction != null) rotateAction.Disable();
+        if (lookAction != null) lookAction.Disable();
+    }
+
+    #endregion
+
+    #region Input Event Handlers
+
+    /// <summary>
+    /// Handles zoom input from mouse scroll wheel.
+    /// </summary>
+    /// <param name="context">The input action callback context.</param>
     private void OnZoomPerformed(InputAction.CallbackContext context)
     {
         float scrollInput = context.ReadValue<float>();
@@ -120,6 +203,10 @@ public class CameraController : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Handles camera rotation input from mouse movement.
+    /// </summary>
+    /// <param name="context">The input action callback context.</param>
     private void OnRotatePerformed(InputAction.CallbackContext context)
     {
         // Only process rotation when the right mouse button is held
@@ -145,6 +232,10 @@ public class CameraController : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Handles look input (currently placeholder for future implementation).
+    /// </summary>
+    /// <param name="context">The input action callback context.</param>
     private void OnLookPerformed(InputAction.CallbackContext context)
     {
         Vector2 lookInput = context.ReadValue<Vector2>();
@@ -152,7 +243,14 @@ public class CameraController : MonoBehaviour
         if (showDebug) Debug.Log($"Look input: {lookInput}");
     }
 
-    void LateUpdate()
+    #endregion
+
+    #region Camera Movement
+
+    /// <summary>
+    /// Updates the camera position and rotation based on target movement and input.
+    /// </summary>
+    private void UpdateCameraPosition()
     {
         if (target == null)
         {
@@ -193,34 +291,36 @@ public class CameraController : MonoBehaviour
         // Draw debug visualization
         if (showDebug)
         {
-            Debug.DrawLine(transform.position, target.position, debugColor);
-            Debug.DrawRay(target.position, lookAheadPos, Color.blue);
-            
-            // Add rotation debug visualization
-            if (isRotating)
-            {
-                Debug.DrawRay(transform.position, transform.forward * 2f, Color.red);
-                Debug.DrawRay(transform.position, transform.right * 2f, Color.green);
-                Debug.DrawRay(transform.position, transform.up * 2f, Color.blue);
-            }
+            DrawDebugVisualization(lookAheadPos);
         }
     }
 
-    private void UpdateCameraPosition()
+    /// <summary>
+    /// Draws debug visualization for camera movement and rotation.
+    /// </summary>
+    /// <param name="lookAheadPos">The look-ahead position to visualize.</param>
+    private void DrawDebugVisualization(Vector3 lookAheadPos)
     {
-        if (target != null)
+        Debug.DrawLine(transform.position, target.position, debugColor);
+        Debug.DrawRay(target.position, lookAheadPos, Color.blue);
+        
+        // Add rotation debug visualization
+        if (isRotating)
         {
-            // Calculate rotation
-            Quaternion rotation = Quaternion.Euler(currentRotationY, currentRotationX, 0);
-            
-            // Calculate position with current zoom and rotation
-            Vector3 newPosition = target.position + rotation * (offset.normalized * currentZoom);
-            transform.position = newPosition;
-            transform.rotation = rotation;
+            Debug.DrawRay(transform.position, transform.forward * 2f, Color.red);
+            Debug.DrawRay(transform.position, transform.right * 2f, Color.green);
+            Debug.DrawRay(transform.position, transform.up * 2f, Color.blue);
         }
     }
 
-    private void OnDrawGizmos()
+    #endregion
+
+    #region Debug Visualization
+
+    /// <summary>
+    /// Draws debug gizmos for camera bounds and current zoom level.
+    /// </summary>
+    private void DrawDebugGizmos()
     {
         if (!showDebug || target == null) return;
 
@@ -234,6 +334,5 @@ public class CameraController : MonoBehaviour
         Gizmos.DrawWireSphere(target.position, currentZoom);
     }
 
-    private InputAction rotateAction;
-    private InputAction lookAction;
+    #endregion
 }

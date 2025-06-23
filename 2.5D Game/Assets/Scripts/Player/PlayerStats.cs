@@ -1,9 +1,12 @@
 using UnityEngine;
 using System;
 
+/// <summary>
+/// Manages all player statistics including health, attack, defense, speed, leveling, and equipment.
+/// This script handles stat calculations, damage processing, healing, experience gain, and weapon equipping.
+/// </summary>
 public class PlayerStats : MonoBehaviour
 {
-
     [Header("Leveling")]
     [SerializeField] private int initialLevel = 1;
     [SerializeField] private float experienceMultiplier = 1.1f;
@@ -27,13 +30,18 @@ public class PlayerStats : MonoBehaviour
     [Header("Debug")]
     [SerializeField] private bool showDebug = true;
 
+    // Components
     private PlayerAttack playerAttack;
     private PlayerInventory playerInventory;
+
+    // State Variables
     private float lastDamageTime;
     private bool isDead;
 
+    // Equipment
     public ItemInstance CurrentWeapon { get; private set; }
 
+    // Events
     public event Action<int> OnLevelUp;
     public event Action<float> OnExperienceGained;
     public event Action<float> OnHealthChanged;
@@ -43,7 +51,7 @@ public class PlayerStats : MonoBehaviour
     public event Action<float> OnCooldownChanged;
     public event Action OnDeath;
 
-    // --- Public Properties for Stats ---
+    // Public Properties
     public int CurrentLevel { get; private set; }
     public float CurrentExperience { get; private set; }
     public float ExperienceToNextLevel { get; private set; }
@@ -53,12 +61,43 @@ public class PlayerStats : MonoBehaviour
     public float CurrentSpeed { get; private set; }
     public float CurrentCooldown => CalculateAttackCooldown();
 
+    #region Unity Lifecycle 
 
     private void Awake()
     {
+        InitializeComponents();
+        ValidateComponents();
+        InitializeStats();
+    }
+
+    private void Start() 
+    {
+        LogInitialStats();
+    }
+
+    private void Update()
+    {
+        HandleHealthRegeneration();
+    }
+
+    #endregion
+
+    #region Initialization
+
+    /// <summary>
+    /// Gets and caches required components.
+    /// </summary>
+    private void InitializeComponents()
+    {
         playerAttack = GetComponent<PlayerAttack>();
         playerInventory = GetComponent<PlayerInventory>();
+    }
 
+    /// <summary>
+    /// Validates that all required components are present.
+    /// </summary>
+    private void ValidateComponents()
+    {
         if (playerAttack == null)
         {
             Debug.LogError("PlayerAttack component not found on player!");
@@ -68,17 +107,24 @@ public class PlayerStats : MonoBehaviour
         {
             Debug.LogError("PlayerInventory component not found on player!");
         }
+    }
 
-        // Initialize public properties from serialized fields
+    /// <summary>
+    /// Initializes all player statistics to their starting values.
+    /// </summary>
+    private void InitializeStats()
+    {
         CurrentLevel = initialLevel;
-        
-        UpdateStats(); // This will set up attack, defense, etc.
-        ExperienceToNextLevel = baseHealth * experienceMultiplier; // Initial EXP to level
-        CurrentHealth = GetMaxHealth(); // Start with full health
+        UpdateStats();
+        ExperienceToNextLevel = baseHealth * experienceMultiplier;
+        CurrentHealth = GetMaxHealth();
         OnHealthChanged?.Invoke(CurrentHealth);
     }
 
-    private void Start() 
+    /// <summary>
+    /// Logs initial stats for debugging purposes.
+    /// </summary>
+    private void LogInitialStats()
     {
         if (showDebug)
         {
@@ -86,15 +132,25 @@ public class PlayerStats : MonoBehaviour
         }
     }
 
-    private void Update()
+    #endregion
+
+    #region Health Management
+
+    /// <summary>
+    /// Handles automatic health regeneration over time.
+    /// </summary>
+    private void HandleHealthRegeneration()
     {
-        // Handle health regeneration
-        if (!isDead && Time.time - lastDamageTime >= 1f) // Using a fixed 1s delay
+        if (!isDead && Time.time - lastDamageTime >= 1f)
         {
-            Heal(1f * Time.deltaTime); // Using a fixed 1hp/sec regen rate
+            Heal(1f * Time.deltaTime);
         }
     }
 
+    /// <summary>
+    /// Applies damage to the player, calculating defense reduction.
+    /// </summary>
+    /// <param name="damage">The raw damage amount to apply.</param>
     public void TakeDamage(float damage)
     {
         if (isDead) return;
@@ -104,7 +160,10 @@ public class PlayerStats : MonoBehaviour
         lastDamageTime = Time.time;
         OnHealthChanged?.Invoke(CurrentHealth);
 
-        if (showDebug) Debug.Log($"Player took {damageTaken} damage, health is now {CurrentHealth}");
+        if (showDebug) 
+        {
+            Debug.Log($"Player took {damageTaken} damage, health is now {CurrentHealth}");
+        }
 
         if (CurrentHealth <= 0)
         {
@@ -112,9 +171,14 @@ public class PlayerStats : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Heals the player by the specified amount, respecting maximum health.
+    /// </summary>
+    /// <param name="amount">The amount of health to restore.</param>
     public void Heal(float amount)
     {
         if (isDead) return;
+        
         float maxHealth = GetMaxHealth();
         if (CurrentHealth < maxHealth)
         {
@@ -122,20 +186,47 @@ public class PlayerStats : MonoBehaviour
             OnHealthChanged?.Invoke(CurrentHealth);
         }
     }
-    
+
+    /// <summary>
+    /// Handles player death, triggering death events and disabling functionality.
+    /// </summary>
     private void Die()
     {
         isDead = true;
         OnDeath?.Invoke();
-        if (showDebug) Debug.Log("Player has died.");
-        // You can disable player input or trigger other death effects here
+        
+        if (showDebug) 
+        {
+            Debug.Log("Player has died.");
+        }
     }
 
+    /// <summary>
+    /// Returns whether the player is currently dead.
+    /// </summary>
+    /// <returns>True if the player is dead, false otherwise.</returns>
     public bool IsDead()
     {
         return isDead;
     }
 
+    /// <summary>
+    /// Gets the maximum health for the current level.
+    /// </summary>
+    /// <returns>The maximum health value.</returns>
+    public float GetMaxHealth()
+    {
+        return baseHealth + (healthGrowth * (CurrentLevel - 1));
+    }
+
+    #endregion
+
+    #region Equipment Management
+
+    /// <summary>
+    /// Equips a weapon, moving it from inventory to equipment slot.
+    /// </summary>
+    /// <param name="weapon">The weapon item to equip.</param>
     public void EquipWeapon(ItemInstance weapon)
     {
         if (CurrentWeapon != null)
@@ -144,101 +235,175 @@ public class PlayerStats : MonoBehaviour
         }
 
         playerInventory.RemoveItemInstance(weapon);
-
         CurrentWeapon = weapon;
         UpdateStats();
     }
 
+    /// <summary>
+    /// Unequips the current weapon, moving it back to inventory.
+    /// </summary>
     public void UnequipWeapon()
     {
         if (CurrentWeapon == null) return;
 
         playerInventory.AddItemInstance(CurrentWeapon);
-
         CurrentWeapon = null;
         UpdateStats();
+        
         Debug.Log("Weapon unequipped.");
     }
 
+    #endregion
+
+    #region Item Usage
+
+    /// <summary>
+    /// Uses a consumable item, applying its effects.
+    /// </summary>
+    /// <param name="item">The consumable item to use.</param>
     public void UseConsumable(ItemInstance item)
     {
-        if (item.itemData.itemType == ItemType.Consumable)
+        if (item.itemData.itemType != ItemType.Consumable) return;
+        
+        if (item.itemData.consumableSubType == ConsumableSubType.Potion)
         {
-            if (item.itemData.consumableSubType == ConsumableSubType.Potion)
+            if (CurrentHealth < GetMaxHealth() && item.count > 0)
             {
-                if (CurrentHealth < GetMaxHealth() && item.count > 0)
-                {
-                    Heal(item.itemData.healthRestore);
-                    item.count--;
-                    Debug.Log("Consumed " + item.itemData.itemName + " for " + item.itemData.healthRestore + " health");
-                }
-                else
-                {
-                    Debug.Log("No health to restore as it is already at max or no consumable left");
-                }
+                Heal(item.itemData.healthRestore);
+                item.count--;
+                Debug.Log($"Consumed {item.itemData.itemName} for {item.itemData.healthRestore} health");
+            }
+            else
+            {
+                Debug.Log("No health to restore as it is already at max or no consumable left");
             }
         }
     }
 
+    #endregion
+
+    #region Experience and Leveling
+
+    /// <summary>
+    /// Adds experience points and handles level-ups.
+    /// </summary>
+    /// <param name="amount">The amount of experience to gain.</param>
     public void GainExperience(float amount)
     {
         float remainingExperience = CurrentExperience + amount;
+        
         while (remainingExperience >= ExperienceToNextLevel)
         {
             remainingExperience -= ExperienceToNextLevel;
             LevelUp();
         }
+        
         CurrentExperience = remainingExperience;
         OnExperienceGained?.Invoke(CurrentExperience);
 
-        if (showDebug) Debug.Log($"Player gained {amount} experience. Current experience: {CurrentExperience}");
+        if (showDebug) 
+        {
+            Debug.Log($"Player gained {amount} experience. Current experience: {CurrentExperience}");
+        }
     }
 
+    /// <summary>
+    /// Handles level-up logic, increasing stats and experience requirements.
+    /// </summary>
+    private void LevelUp()
+    {
+        CurrentLevel++;
+        ExperienceToNextLevel *= experienceMultiplier;
+        OnLevelUp?.Invoke(CurrentLevel);
+        UpdateStats();
+        
+        if (showDebug)
+        { 
+            Debug.Log($"Player leveled up to level {CurrentLevel}");
+            Debug.Log($"New stats: Health {CurrentHealth}, Attack {CurrentAttack}, Defense {CurrentDefense}, Speed {CurrentSpeed}");
+        }
+    }
+
+    #endregion
+
+    #region Stat Calculations
+
+    /// <summary>
+    /// Updates all current stats based on level and equipment.
+    /// </summary>
     private void UpdateStats()
     {
         float levelBonus = CurrentLevel - 1;
+        
         CurrentHealth = baseHealth + (healthGrowth * levelBonus);
         CurrentAttack = baseAttack + (attackGrowth * levelBonus);
-
-        if (CurrentWeapon != null)
-            CurrentAttack += CurrentWeapon.itemData.damage;
-
         CurrentDefense = baseDefense + (defenseGrowth * levelBonus);
         CurrentSpeed = baseSpeed + (speedGrowth * levelBonus);
 
+        // Apply weapon bonus
+        if (CurrentWeapon != null)
+        {
+            CurrentAttack += CurrentWeapon.itemData.damage;
+        }
+
+        // Notify listeners of stat changes
         float newCooldown = CalculateAttackCooldown();
         OnCooldownChanged?.Invoke(newCooldown);
-
         OnHealthChanged?.Invoke(CurrentHealth);
         OnAttackChanged?.Invoke(CurrentAttack);
         OnDefenseChanged?.Invoke(CurrentDefense);
         OnSpeedChanged?.Invoke(CurrentSpeed);
     }
 
-    public float GetMaxHealth()
-    {
-        return baseHealth + (healthGrowth * (CurrentLevel - 1));
-    }
-
+    /// <summary>
+    /// Calculates damage reduction based on defense stat.
+    /// </summary>
+    /// <param name="incomingDamage">The raw incoming damage.</param>
+    /// <returns>The final damage after defense reduction.</returns>
     public float CalculateDamageTaken(float incomingDamage)
     {
         float damageReduction = CurrentDefense / (CurrentDefense + 100);
         float finalDamage = incomingDamage * (1 - damageReduction);
         return finalDamage;
     }
-    
-    public void ModifyStats(float HealthModifier, float AttackModifier, float DefenseModifier, float SpeedModifier)
+
+    /// <summary>
+    /// Calculates attack cooldown based on speed stat.
+    /// </summary>
+    /// <returns>The current attack cooldown in seconds.</returns>
+    private float CalculateAttackCooldown()
     {
-        CurrentHealth += HealthModifier;
-        CurrentAttack += AttackModifier;
-        CurrentDefense += DefenseModifier;
-        CurrentSpeed += SpeedModifier;
+        float speedModifier = 1f - (CurrentSpeed / speedToAttackCooldown);
+        return Mathf.Max(0.1f, attackCooldown * speedModifier, 0.5f);
+    }
+
+    /// <summary>
+    /// Modifies stats by the specified amounts (for temporary effects).
+    /// </summary>
+    /// <param name="healthModifier">Health modification amount.</param>
+    /// <param name="attackModifier">Attack modification amount.</param>
+    /// <param name="defenseModifier">Defense modification amount.</param>
+    /// <param name="speedModifier">Speed modification amount.</param>
+    public void ModifyStats(float healthModifier, float attackModifier, float defenseModifier, float speedModifier)
+    {
+        CurrentHealth += healthModifier;
+        CurrentAttack += attackModifier;
+        CurrentDefense += defenseModifier;
+        CurrentSpeed += speedModifier;
         UpdateStats();
     }
 
+    #endregion
+
+    #region Debug
+
+    /// <summary>
+    /// Displays debug information on screen when debug mode is enabled.
+    /// </summary>
     private void OnGUI() 
     {
         if (!showDebug) return;
+        
         GUI.Box(new Rect(10, 10, 200, 220), "Player Stats");
         GUI.Label(new Rect(20, 30, 180, 20), $"Level: {CurrentLevel}");
         GUI.Label(new Rect(20, 50, 180, 20), $"Experience: {CurrentExperience}/{ExperienceToNextLevel}");
@@ -248,22 +413,5 @@ public class PlayerStats : MonoBehaviour
         GUI.Label(new Rect(20, 130, 180, 20), $"Speed: {CurrentSpeed}");
     }
 
-    private void LevelUp()
-    {
-        CurrentLevel++;
-        ExperienceToNextLevel *= experienceMultiplier;
-        OnLevelUp?.Invoke(CurrentLevel);
-        UpdateStats();
-        if (showDebug)
-        { 
-            Debug.Log($"Player leveled up to level {CurrentLevel}");
-            Debug.Log($"New stats: Health {CurrentHealth}, Attack {CurrentAttack}, Defense {CurrentDefense}, Speed {CurrentSpeed}");
-        }
-    }
-
-    private float CalculateAttackCooldown()
-    {
-       float speedModifier = 1f - (CurrentSpeed / speedToAttackCooldown);
-       return Mathf.Max(0.1f, attackCooldown * speedModifier, 0.5f);
-    }
+    #endregion
 }

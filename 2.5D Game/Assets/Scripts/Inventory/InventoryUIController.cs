@@ -2,58 +2,107 @@ using UnityEngine;
 using UnityEngine.UIElements;
 using System.Collections.Generic;
 
+/// <summary>
+/// Manages the inventory user interface, including item display, equipment slots, tooltips, and stat display.
+/// This script handles all UI interactions for the player's inventory system.
+/// </summary>
 public class InventoryUIController : MonoBehaviour
 {
     public static InventoryUIController Instance { get; private set; }
 
+    [Header("UI References")]
     [SerializeField] private UIDocument uiDocument;
-    [SerializeField] private PlayerStats playerStats; // Assign this in the Inspector
+    [SerializeField] private PlayerStats playerStats;
 
+    // UI Elements
     private VisualElement inventoryPanel;
     private VisualElement inventoryGrid;
     private VisualElement equipmentGrid;
     private VisualElement statsDisplay;
     private Button closeButton;
     
-    // --- Add references for the tooltip ---
+    // Tooltip Elements
     private VisualElement itemTooltip;
     private Label tooltipName;
     private Label tooltipRarity;
     private Label tooltipDescription;
     private VisualElement tooltipStatsList;
     
+    // Data
     private PlayerInventory currentPlayerInventory;
 
-    void Awake()
+    #region Unity Lifecycle
+
+    private void Awake()
     {
         Instance = this;
     }
 
-    void OnEnable()
+    private void OnEnable()
+    {
+        InitializeUIElements();
+        SetupEventHandlers();
+        HideInventory();
+    }
+
+    #endregion
+
+    #region Initialization
+
+    /// <summary>
+    /// Initializes all UI element references from the UIDocument.
+    /// </summary>
+    private void InitializeUIElements()
     {
         if (uiDocument == null) return;
+        
         var root = uiDocument.rootVisualElement;
 
-        // Query all the new elements
+        // Main UI elements
         inventoryPanel = root.Q<VisualElement>("inventory-panel");
         inventoryGrid = root.Q<VisualElement>("inventory-grid");
         equipmentGrid = root.Q<VisualElement>("equipment-grid");
         statsDisplay = root.Q<VisualElement>("stats-display");
         closeButton = root.Q<Button>("close-button");
 
-        // --- Query the tooltip elements ---
+        // Tooltip elements
         itemTooltip = root.Q<VisualElement>("item-tooltip");
         tooltipName = root.Q<Label>("tooltip-name");
         tooltipRarity = root.Q<Label>("tooltip-rarity");
         tooltipDescription = root.Q<Label>("tooltip-description");
         tooltipStatsList = root.Q<VisualElement>("tooltip-stats-list");
-        
-        closeButton.clicked += Hide;
-        
-        // Start hidden
-        inventoryPanel.style.display = DisplayStyle.None;
     }
 
+    /// <summary>
+    /// Sets up event handlers for UI interactions.
+    /// </summary>
+    private void SetupEventHandlers()
+    {
+        if (closeButton != null)
+        {
+            closeButton.clicked += Hide;
+        }
+    }
+
+    /// <summary>
+    /// Hides the inventory panel initially.
+    /// </summary>
+    private void HideInventory()
+    {
+        if (inventoryPanel != null)
+        {
+            inventoryPanel.style.display = DisplayStyle.None;
+        }
+    }
+
+    #endregion
+
+    #region Public Interface
+
+    /// <summary>
+    /// Shows the inventory UI with the specified player's inventory data.
+    /// </summary>
+    /// <param name="playerInventory">The player's inventory to display.</param>
     public void Show(PlayerInventory playerInventory)
     {
         currentPlayerInventory = playerInventory;
@@ -61,11 +110,17 @@ public class InventoryUIController : MonoBehaviour
         RefreshAll();
     }
 
+    /// <summary>
+    /// Hides the inventory UI.
+    /// </summary>
     public void Hide()
     {
         inventoryPanel.style.display = DisplayStyle.None;
     }
 
+    /// <summary>
+    /// Refreshes all UI elements with current data.
+    /// </summary>
     public void RefreshAll()
     {
         if (currentPlayerInventory == null || playerStats == null) return;
@@ -74,182 +129,291 @@ public class InventoryUIController : MonoBehaviour
         RefreshEquipmentSlots();
         RefreshStats();
     }
-    
+
+    #endregion
+
+    #region Inventory Display
+
+    /// <summary>
+    /// Refreshes the inventory grid with current items.
+    /// </summary>
     private void RefreshInventorySlots()
     {
         inventoryGrid.Clear();
+        
         foreach (var item in currentPlayerInventory.items)
         {
-            var slot = new VisualElement();
-            slot.AddToClassList("inventory-slot");
-            
-            slot.RegisterCallback<PointerEnterEvent>(evt => ShowTooltip(evt, item));
-            slot.RegisterCallback<PointerLeaveEvent>(evt => HideTooltip());
-            
-            slot.RegisterCallback<ClickEvent>(evt => OnItemClicked(item));
-            
-            var icon = new VisualElement();
-            icon.AddToClassList("slot-icon");
-
-            if (item.itemData.icon != null)
-            {
-                icon.style.backgroundImage = new StyleBackground(item.itemData.icon as Texture2D);
-            }
-
-            slot.Add(icon);
-            
-            // Add stack count for stackable items
-            if (item.itemData.isStackable && item.count > 1)
-            {
-                var countLabel = new Label(item.count.ToString());
-                countLabel.AddToClassList("stack-count-label"); // Use a specific class for styling
-                slot.Add(countLabel);
-            }
-            
+            var slot = CreateInventorySlot(item);
             inventoryGrid.Add(slot);
         }
     }
 
+    /// <summary>
+    /// Creates a single inventory slot for an item.
+    /// </summary>
+    /// <param name="item">The item to create a slot for.</param>
+    /// <returns>The created VisualElement slot.</returns>
+    private VisualElement CreateInventorySlot(ItemInstance item)
+    {
+        var slot = new VisualElement();
+        slot.AddToClassList("inventory-slot");
+        
+        // Add event handlers
+        slot.RegisterCallback<PointerEnterEvent>(evt => ShowTooltip(evt, item));
+        slot.RegisterCallback<PointerLeaveEvent>(evt => HideTooltip());
+        slot.RegisterCallback<ClickEvent>(evt => OnItemClicked(item));
+        
+        // Add icon
+        var icon = CreateItemIcon(item);
+        slot.Add(icon);
+        
+        // Add stack count for stackable items
+        if (item.itemData.isStackable && item.count > 1)
+        {
+            var countLabel = new Label(item.count.ToString());
+            countLabel.AddToClassList("stack-count-label");
+            slot.Add(countLabel);
+        }
+        
+        return slot;
+    }
+
+    /// <summary>
+    /// Creates an icon element for an item.
+    /// </summary>
+    /// <param name="item">The item to create an icon for.</param>
+    /// <returns>The created icon VisualElement.</returns>
+    private VisualElement CreateItemIcon(ItemInstance item)
+    {
+        var icon = new VisualElement();
+        icon.AddToClassList("slot-icon");
+
+        if (item.itemData.icon != null)
+        {
+            icon.style.backgroundImage = new StyleBackground(item.itemData.icon as Texture2D);
+        }
+
+        return icon;
+    }
+
+    #endregion
+
+    #region Equipment Display
+
+    /// <summary>
+    /// Refreshes the equipment slots with current equipped items.
+    /// </summary>
     private void RefreshEquipmentSlots()
     {
         equipmentGrid.Clear();
 
         if (playerStats.CurrentWeapon != null)
         {
-            var item = playerStats.CurrentWeapon;
-
-            var slot = new VisualElement();
-            slot.AddToClassList("equipment-slot"); // The main container for the row
-
-            slot.RegisterCallback<PointerEnterEvent>(evt => ShowTooltip(evt, item));
-            slot.RegisterCallback<PointerLeaveEvent>(evt => HideTooltip());
-
-            // --- Create a container for the icon to apply a border ---
-            var iconContainer = new VisualElement();
-            iconContainer.AddToClassList("equipment-icon-container");
-            iconContainer.AddToClassList($"rarity-border-{item.itemData.itemRarity.ToString().ToLower()}"); // Rarity border class
-            
-            var icon = new VisualElement();
-            icon.AddToClassList("slot-icon");
-
-            if (item.itemData.icon != null)
-            {
-                icon.style.backgroundImage = new StyleBackground(item.itemData.icon as Texture2D);
-            }
-
-            iconContainer.Add(icon);
-            slot.Add(iconContainer);
-
-            // --- Create the name label ---
-            var nameLabel = new Label(item.itemData.itemName);
-            nameLabel.AddToClassList("equipment-item-name");
-            nameLabel.AddToClassList($"rarity-{item.itemData.itemRarity.ToString().ToLower()}"); // Rarity color for text
-            slot.Add(nameLabel);
-
-            // --- Handle Unequipping ---
-            slot.RegisterCallback<PointerDownEvent>(evt =>
-            {
-                if (evt.clickCount == 2)
-                {
-                    playerStats.UnequipWeapon();
-                    RefreshAll();
-                }
-            });
-            
+            var slot = CreateEquipmentSlot(playerStats.CurrentWeapon);
             equipmentGrid.Add(slot);
         }
     }
 
-    // --- Add new methods for showing and hiding the tooltip ---
+    /// <summary>
+    /// Creates an equipment slot for an equipped item.
+    /// </summary>
+    /// <param name="item">The equipped item.</param>
+    /// <returns>The created equipment slot VisualElement.</returns>
+    private VisualElement CreateEquipmentSlot(ItemInstance item)
+    {
+        var slot = new VisualElement();
+        slot.AddToClassList("equipment-slot");
 
+        // Add event handlers
+        slot.RegisterCallback<PointerEnterEvent>(evt => ShowTooltip(evt, item));
+        slot.RegisterCallback<PointerLeaveEvent>(evt => HideTooltip());
+        slot.RegisterCallback<PointerDownEvent>(evt => HandleEquipmentClick(evt));
+
+        // Create icon container with rarity border
+        var iconContainer = new VisualElement();
+        iconContainer.AddToClassList("equipment-icon-container");
+        iconContainer.AddToClassList($"rarity-border-{item.itemData.itemRarity.ToString().ToLower()}");
+        
+        var icon = CreateItemIcon(item);
+        iconContainer.Add(icon);
+        slot.Add(iconContainer);
+
+        // Create name label with rarity color
+        var nameLabel = new Label(item.itemData.itemName);
+        nameLabel.AddToClassList("equipment-item-name");
+        nameLabel.AddToClassList($"rarity-{item.itemData.itemRarity.ToString().ToLower()}");
+        slot.Add(nameLabel);
+
+        return slot;
+    }
+
+    /// <summary>
+    /// Handles double-click events on equipment slots for unequipping.
+    /// </summary>
+    /// <param name="evt">The pointer down event.</param>
+    private void HandleEquipmentClick(PointerDownEvent evt)
+    {
+        if (evt.clickCount == 2)
+        {
+            playerStats.UnequipWeapon();
+            RefreshAll();
+        }
+    }
+
+    #endregion
+
+    #region Tooltip System
+
+    /// <summary>
+    /// Shows the item tooltip with detailed information.
+    /// </summary>
+    /// <param name="evt">The pointer enter event.</param>
+    /// <param name="item">The item to show tooltip for.</param>
     private void ShowTooltip(PointerEnterEvent evt, ItemInstance item)
     {
         if (item == null || item.itemData == null) return;
 
+        // Position tooltip
         itemTooltip.style.left = evt.position.x + 15;
         itemTooltip.style.top = evt.position.y;
 
-        var data = item.itemData;
+        // Set basic information
+        SetTooltipBasicInfo(item.itemData);
+        
+        // Set detailed stats
+        SetTooltipStats(item.itemData);
+
+        itemTooltip.style.display = DisplayStyle.Flex;
+    }
+
+    /// <summary>
+    /// Sets the basic information in the tooltip (name, rarity, description).
+    /// </summary>
+    /// <param name="data">The item data.</param>
+    private void SetTooltipBasicInfo(ItemData data)
+    {
+        // Set name with rarity color
         tooltipName.text = data.itemName;
         tooltipName.ClearClassList();
         tooltipName.AddToClassList("tooltip-title");
         tooltipName.AddToClassList($"rarity-{data.itemRarity.ToString().ToLower()}");
 
+        // Set rarity
         tooltipRarity.text = data.itemRarity.ToString();
         tooltipRarity.ClearClassList();
         tooltipRarity.AddToClassList("tooltip-rarity");
         tooltipRarity.AddToClassList($"rarity-{data.itemRarity.ToString().ToLower()}");
         
+        // Set description
         tooltipDescription.text = data.itemDescription;
+    }
 
+    /// <summary>
+    /// Sets the detailed stats in the tooltip based on item type.
+    /// </summary>
+    /// <param name="data">The item data.</param>
+    private void SetTooltipStats(ItemData data)
+    {
         tooltipStatsList.Clear();
         
         if (data.itemType == ItemType.Weapon)
         {
-            var damageLabel = new Label($"Damage: {data.damage}");
-            damageLabel.AddToClassList("tooltip-stat-label");
-            tooltipStatsList.Add(damageLabel);
-
-            if (data.weaponCritChance > 0)
-            {
-                var critLabel = new Label($"Crit Chance: {data.weaponCritChance}%");
-                critLabel.AddToClassList("tooltip-stat-label");
-                tooltipStatsList.Add(critLabel);
-            }
-
-            var handLabel = new Label($"Hand: {data.weaponHand}");
-            handLabel.AddToClassList("tooltip-stat-label");
-            tooltipStatsList.Add(handLabel);
-
-            var weightLabel = new Label($"Weight: {data.weaponWeight}");
-            weightLabel.AddToClassList("tooltip-stat-label");
-            tooltipStatsList.Add(weightLabel);
+            AddWeaponStats(data);
         }
         else if (data.itemType == ItemType.Consumable)
         {
-            var healLabel = new Label($"Heals: {data.healthRestore}");
-            healLabel.AddToClassList("tooltip-stat-label");
-            tooltipStatsList.Add(healLabel);
+            AddConsumableStats(data);
         }
         
+        // Add item level if applicable
         if (data.itemLevel > 0)
         {
             var levelLabel = new Label($"Item Level: {data.itemLevel}");
             levelLabel.AddToClassList("tooltip-stat-label");
             tooltipStatsList.Add(levelLabel);
         }
-
-        itemTooltip.style.display = DisplayStyle.Flex;
     }
 
+    /// <summary>
+    /// Adds weapon-specific stats to the tooltip.
+    /// </summary>
+    /// <param name="data">The weapon item data.</param>
+    private void AddWeaponStats(ItemData data)
+    {
+        var damageLabel = new Label($"Damage: {data.damage}");
+        damageLabel.AddToClassList("tooltip-stat-label");
+        tooltipStatsList.Add(damageLabel);
+
+        if (data.weaponCritChance > 0)
+        {
+            var critLabel = new Label($"Crit Chance: {data.weaponCritChance}%");
+            critLabel.AddToClassList("tooltip-stat-label");
+            tooltipStatsList.Add(critLabel);
+        }
+
+        var handLabel = new Label($"Hand: {data.weaponHand}");
+        handLabel.AddToClassList("tooltip-stat-label");
+        tooltipStatsList.Add(handLabel);
+
+        var weightLabel = new Label($"Weight: {data.weaponWeight}");
+        weightLabel.AddToClassList("tooltip-stat-label");
+        tooltipStatsList.Add(weightLabel);
+    }
+
+    /// <summary>
+    /// Adds consumable-specific stats to the tooltip.
+    /// </summary>
+    /// <param name="data">The consumable item data.</param>
+    private void AddConsumableStats(ItemData data)
+    {
+        var healLabel = new Label($"Heals: {data.healthRestore}");
+        healLabel.AddToClassList("tooltip-stat-label");
+        tooltipStatsList.Add(healLabel);
+    }
+
+    /// <summary>
+    /// Hides the item tooltip.
+    /// </summary>
     private void HideTooltip()
     {
         itemTooltip.style.display = DisplayStyle.None;
     }
 
+    #endregion
+
+    #region Item Interactions
+
+    /// <summary>
+    /// Handles item click events for equipping weapons or using consumables.
+    /// </summary>
+    /// <param name="item">The clicked item.</param>
     private void OnItemClicked(ItemInstance item)
     {
         if (item == null || item.itemData == null) return;
 
-        // Check if the item is a weapon
-        if (item.itemData.itemType == ItemType.Weapon)
+        switch (item.itemData.itemType)
         {
-            // If it's a weapon, equip it.
-            playerStats.EquipWeapon(item);
-            Debug.Log($"Equipped {item.itemData.itemName}");
-        }
-        // Check if the item is a consumable
-        else if (item.itemData.itemType == ItemType.Consumable)
-        {
-            // If it's a consumable, use it.
-            playerStats.UseConsumable(item);
-            Debug.Log($"Used {item.itemData.itemName}");
+            case ItemType.Weapon:
+                playerStats.EquipWeapon(item);
+                Debug.Log($"Equipped {item.itemData.itemName}");
+                break;
+                
+            case ItemType.Consumable:
+                playerStats.UseConsumable(item);
+                Debug.Log($"Used {item.itemData.itemName}");
+                break;
         }
 
-        // Refresh the entire UI to show stat changes and consumed items.
         RefreshAll();
     }
 
+    #endregion
+
+    #region Stats Display
+
+    /// <summary>
+    /// Refreshes the stats display with current player statistics.
+    /// </summary>
     private void RefreshStats()
     {
         statsDisplay.Clear();
@@ -257,18 +421,23 @@ public class InventoryUIController : MonoBehaviour
         if (playerStats == null) 
         {
             Debug.LogError("PlayerStats is not assigned in the InventoryUIController!");
-                return;
-            }
+            return;
+        }
 
-        // Create and add labels for each stat
+        // Add stat labels
         statsDisplay.Add(CreateStatLabel($"Health: {playerStats.CurrentHealth}"));
         statsDisplay.Add(CreateStatLabel($"Attack: {playerStats.CurrentAttack}"));
         statsDisplay.Add(CreateStatLabel($"Defense: {playerStats.CurrentDefense}"));
-        statsDisplay.Add(CreateStatSperator());
+        statsDisplay.Add(CreateStatSeparator());
         statsDisplay.Add(CreateStatLabel($"Level: {playerStats.CurrentLevel}"));
         statsDisplay.Add(CreateStatLabel($"EXP: {(int)playerStats.CurrentExperience} / {(int)playerStats.ExperienceToNextLevel}"));
     }
 
+    /// <summary>
+    /// Creates a stat label with proper styling.
+    /// </summary>
+    /// <param name="text">The text to display.</param>
+    /// <returns>The created Label element.</returns>
     private Label CreateStatLabel(string text)
     {
         var label = new Label(text);
@@ -276,14 +445,20 @@ public class InventoryUIController : MonoBehaviour
         return label;
     }
     
-    private VisualElement CreateStatSperator()
+    /// <summary>
+    /// Creates a visual separator for the stats display.
+    /// </summary>
+    /// <returns>The created separator VisualElement.</returns>
+    private VisualElement CreateStatSeparator()
     {
-        var seperator = new VisualElement();
-        seperator.style.height = 1;
-        seperator.style.backgroundColor = new StyleColor(new Color(0.4f,0.4f,0.4f,0.4f));
-        seperator.style.marginTop = 5;
-        seperator.style.marginBottom = 5;
+        var separator = new VisualElement();
+        separator.style.height = 1;
+        separator.style.backgroundColor = new StyleColor(new Color(0.4f, 0.4f, 0.4f, 0.4f));
+        separator.style.marginTop = 5;
+        separator.style.marginBottom = 5;
 
-        return seperator;
+        return separator;
     }
+
+    #endregion
 }

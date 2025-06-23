@@ -5,8 +5,13 @@ using System;
 using System.Collections;
 using UnityEngine.InputSystem;
 
+/// <summary>
+/// Manages the health bar UI display, including visual effects for damage, healing, and death.
+/// This script provides real-time health updates with various visual feedback effects.
+/// </summary>
 public class HealthBarUI : MonoBehaviour
 {
+    #region Serialized Fields
 
     [Header("UI Elements")]
     [Tooltip("The main health bar slider component")]
@@ -62,6 +67,10 @@ public class HealthBarUI : MonoBehaviour
     [Tooltip("Amount of health to restore when testing")]
     [SerializeField] private float testHealAmount = 10f;
 
+    #endregion
+
+    #region Private Fields
+
     private PlayerStats playerStats;
     private PlayerInput playerInput;
     private InputAction testDamageAction;
@@ -70,9 +79,41 @@ public class HealthBarUI : MonoBehaviour
     private bool isRegenerating;
     private Coroutine currentRegenEffect;
 
+    #endregion
+
+    #region Unity Lifecycle
+
     private void Awake()
     {
-        // Find and validate the PlayerController
+        InitializeComponents();
+        SetupInputActions();
+        InitializeHealthUI();
+    }
+
+    private void Start()
+    {
+        SubscribeToEvents();
+    }
+
+    private void OnEnable()
+    {
+        EnableInputActions();
+    }
+
+    private void OnDisable()
+    {
+        DisableInputActions();
+    }
+
+    #endregion
+
+    #region Initialization
+
+    /// <summary>
+    /// Initializes and validates all required components.
+    /// </summary>
+    private void InitializeComponents()
+    {
         playerStats = FindFirstObjectByType<PlayerStats>();
         if (playerStats == null)
         {
@@ -80,7 +121,6 @@ public class HealthBarUI : MonoBehaviour
             return;
         }
 
-        // Get and validate the PlayerInput component
         playerInput = playerStats.GetComponent<PlayerInput>();
         if (playerInput == null)
         {
@@ -88,36 +128,30 @@ public class HealthBarUI : MonoBehaviour
             return;
         }
 
-        // Get and validate UI components
+        ValidateUIComponents();
+    }
+
+    /// <summary>
+    /// Validates that all UI components are properly assigned.
+    /// </summary>
+    private void ValidateUIComponents()
+    {
         if (healthSlider == null)
         {
             Debug.LogError("Health Slider not assigned in the inspector.");
-            return;
         }
 
         if (fillImage == null)
         {
             Debug.LogError("Fill Image not assigned in the inspector.");
-            return;
         }
+    }
 
-        // Initialize health values
-        healthSlider.maxValue = playerStats.CurrentHealth;
-        healthSlider.value = playerStats.CurrentHealth;
-        fillImage.color = healthGradient.Evaluate(healthSlider.normalizedValue);
-
-        // Initialize health text if enabled
-        if (showHealthText && healthText != null)
-        {
-            healthText.text = string.Format(healthTextFormat, 
-                playerStats.CurrentHealth, 
-                playerStats.CurrentHealth);
-        }
-
-        lastHealth = playerStats.CurrentHealth;
-        isRegenerating = false;
-
-        // Get input actions
+    /// <summary>
+    /// Sets up input actions for testing.
+    /// </summary>
+    private void SetupInputActions()
+    {
         var playerMap = playerInput.actions.FindActionMap("Player");
         if (playerMap != null)
         {
@@ -131,17 +165,48 @@ public class HealthBarUI : MonoBehaviour
         }
     }
 
-    private void Start()
+    /// <summary>
+    /// Initializes the health UI with current player stats.
+    /// </summary>
+    private void InitializeHealthUI()
     {
-        // Subscribe to events only if we have a valid player stats
+        if (playerStats == null) return;
+
+        healthSlider.maxValue = playerStats.CurrentHealth;
+        healthSlider.value = playerStats.CurrentHealth;
+        fillImage.color = healthGradient.Evaluate(healthSlider.normalizedValue);
+
+        if (showHealthText && healthText != null)
+        {
+            healthText.text = string.Format(healthTextFormat, 
+                playerStats.CurrentHealth, 
+                playerStats.CurrentHealth);
+        }
+
+        lastHealth = playerStats.CurrentHealth;
+        isRegenerating = false;
+    }
+
+    #endregion
+
+    #region Event Management
+
+    /// <summary>
+    /// Subscribes to player stats events.
+    /// </summary>
+    private void SubscribeToEvents()
+    {
         if (playerStats != null)
         {
             playerStats.OnHealthChanged += UpdateHealthUI;
-          //  playerStats.OnDeath += OnPlayerDeath;
+            // playerStats.OnDeath += OnPlayerDeath;
         }
     }
 
-    private void OnEnable()
+    /// <summary>
+    /// Enables input actions for testing.
+    /// </summary>
+    private void EnableInputActions()
     {
         if (testDamageAction != null)
         {
@@ -155,7 +220,10 @@ public class HealthBarUI : MonoBehaviour
         }
     }
 
-    private void OnDisable()
+    /// <summary>
+    /// Disables input actions for testing.
+    /// </summary>
+    private void DisableInputActions()
     {
         if (testDamageAction != null)
         {
@@ -169,22 +237,58 @@ public class HealthBarUI : MonoBehaviour
         }
     }
 
+    #endregion
+
+    #region Input Event Handlers
+
+    /// <summary>
+    /// Handles test damage input.
+    /// </summary>
+    /// <param name="context">The input action callback context.</param>
     private void OnTestDamagePerformed(InputAction.CallbackContext context)
     {
         if (!enableTestControls) return;
         playerStats.ModifyStats(0, 0, 0, -testDamageAmount);
-        if (showDebug) Debug.Log($"Test: Took {testDamageAmount} damage");
+        if (showDebug) 
+        {
+            Debug.Log($"Test: Took {testDamageAmount} damage");
+        }
     }
 
+    /// <summary>
+    /// Handles test heal input.
+    /// </summary>
+    /// <param name="context">The input action callback context.</param>
     private void OnTestHealPerformed(InputAction.CallbackContext context)
     {
         if (!enableTestControls) return;
         playerStats.ModifyStats(testHealAmount, 0, 0, 0);
-        if (showDebug) Debug.Log($"Test: Healed {testHealAmount} health");
+        if (showDebug) 
+        {
+            Debug.Log($"Test: Healed {testHealAmount} health");
+        }
     }
 
-    // Update the health UI
-    void UpdateHealthUI(float currentHealth)
+    #endregion
+
+    #region Health UI Updates
+
+    /// <summary>
+    /// Updates the health UI with the current health value.
+    /// </summary>
+    /// <param name="currentHealth">The current health value.</param>
+    private void UpdateHealthUI(float currentHealth)
+    {
+        HandleHealthChange(currentHealth);
+        UpdateHealthDisplay(currentHealth);
+        LogHealthUpdate(currentHealth);
+    }
+
+    /// <summary>
+    /// Handles health changes and triggers appropriate effects.
+    /// </summary>
+    /// <param name="currentHealth">The current health value.</param>
+    private void HandleHealthChange(float currentHealth)
     {
         // Check if health decreased (damage)
         if (currentHealth < lastHealth)
@@ -195,66 +299,91 @@ public class HealthBarUI : MonoBehaviour
         // Check if health increased (regeneration)
         if (currentHealth > lastHealth)
         {
-            if (!isRegenerating)
-            {
-                // Stop any existing regeneration effect
-                if (currentRegenEffect != null)
-                {
-                    StopCoroutine(currentRegenEffect);
-                }
-                
-                isRegenerating = true;
-                currentRegenEffect = StartCoroutine(RegenerationEffect());
-                
-                if (showDebug)
-                {
-                    Debug.Log($"Started regeneration effect. Health: {currentHealth}/{playerStats.CurrentHealth}");
-                }
-            }
+            HandleRegeneration();
         }
 
         lastHealth = currentHealth;
-
-        // Update the health slider value
-        healthSlider.maxValue = playerStats.CurrentHealth;
-        healthSlider.value = currentHealth;
-       
-
-       // Update the fill color based on the health percentage
-       fillImage.color = healthGradient.Evaluate(healthSlider.normalizedValue);
-
-       // Update the health text if enabled
-       if(showHealthText && healthText != null)
-       {
-        healthText.text = string.Format(healthTextFormat, 
-        currentHealth, 
-        playerStats.CurrentHealth);
-       }
-
-       if(showDebug)
-       {
-        Debug.Log($"Health UI Updated: {currentHealth}/{playerStats.CurrentHealth}, Regenerating: {isRegenerating}");
-       }
-
     }
 
-    private System.Collections.IEnumerator DamageFlashEffect()
+    /// <summary>
+    /// Handles regeneration effects when health increases.
+    /// </summary>
+    private void HandleRegeneration()
+    {
+        if (!isRegenerating)
+        {
+            if (currentRegenEffect != null)
+            {
+                StopCoroutine(currentRegenEffect);
+            }
+            
+            isRegenerating = true;
+            currentRegenEffect = StartCoroutine(RegenerationEffect());
+            
+            if (showDebug)
+            {
+                Debug.Log($"Started regeneration effect. Health: {lastHealth}/{playerStats.CurrentHealth}");
+            }
+        }
+    }
+
+    /// <summary>
+    /// Updates the visual health display elements.
+    /// </summary>
+    /// <param name="currentHealth">The current health value.</param>
+    private void UpdateHealthDisplay(float currentHealth)
+    {
+        healthSlider.maxValue = playerStats.CurrentHealth;
+        healthSlider.value = currentHealth;
+        fillImage.color = healthGradient.Evaluate(healthSlider.normalizedValue);
+
+        if (showHealthText && healthText != null)
+        {
+            healthText.text = string.Format(healthTextFormat, 
+                currentHealth, 
+                playerStats.CurrentHealth);
+        }
+    }
+
+    /// <summary>
+    /// Logs health updates for debugging.
+    /// </summary>
+    /// <param name="currentHealth">The current health value.</param>
+    private void LogHealthUpdate(float currentHealth)
+    {
+        if (showDebug)
+        {
+            Debug.Log($"Health UI Updated: {currentHealth}/{playerStats.CurrentHealth}, Regenerating: {isRegenerating}");
+        }
+    }
+
+    #endregion
+
+    #region Visual Effects
+
+    /// <summary>
+    /// Coroutine that creates a flash effect when taking damage.
+    /// </summary>
+    /// <returns>IEnumerator for the coroutine.</returns>
+    private IEnumerator DamageFlashEffect()
     {
         Color originalColor = fillImage.color;
         
         for (int i = 0; i < damageFlashCount; i++)
         {
-            // Flash to damage color
             fillImage.color = damageFlashColor;
             yield return new WaitForSeconds(damageFlashDuration / 2);
             
-            // Return to original color
             fillImage.color = originalColor;
             yield return new WaitForSeconds(damageFlashDuration / 2);
         }
     }
 
-    private System.Collections.IEnumerator RegenerationEffect()
+    /// <summary>
+    /// Coroutine that creates a pulsing effect during regeneration.
+    /// </summary>
+    /// <returns>IEnumerator for the coroutine.</returns>
+    private IEnumerator RegenerationEffect()
     {
         Color originalColor = fillImage.color;
         float elapsedTime = 0f;
@@ -264,7 +393,6 @@ public class HealthBarUI : MonoBehaviour
         {
             elapsedTime += Time.deltaTime * regenPulseSpeed;
             
-            // Pulse between original color and regen color
             float pulse = Mathf.Sin(elapsedTime * Mathf.PI * 2) * regenPulseScale;
             Color targetColor = Color.Lerp(originalColor, regenPulseColor, pulse);
             fillImage.color = targetColor;
@@ -277,7 +405,6 @@ public class HealthBarUI : MonoBehaviour
             yield return null;
         }
 
-        // Reset to original state
         fillImage.color = healthGradient.Evaluate(healthSlider.normalizedValue);
         isRegenerating = false;
         currentRegenEffect = null;
@@ -288,13 +415,27 @@ public class HealthBarUI : MonoBehaviour
         }
     }
 
+    #endregion
+
+    #region Death Effects
+
+    /// <summary>
+    /// Handles player death events.
+    /// </summary>
     private void OnPlayerDeath()
     {
-        if (showDebug) Debug.Log("Player Death Event Triggered");
-        StartCoroutine(DeathEffects()); // Start the death effects
+        if (showDebug) 
+        {
+            Debug.Log("Player Death Event Triggered");
+        }
+        StartCoroutine(DeathEffects());
     }
 
-    private System.Collections.IEnumerator DeathEffects() // Coroutine for death effects
+    /// <summary>
+    /// Coroutine that creates death visual effects.
+    /// </summary>
+    /// <returns>IEnumerator for the coroutine.</returns>
+    private IEnumerator DeathEffects()
     {
         float elapsedTime = 0f;
         Color startColor = fillImage.color;
@@ -315,7 +456,11 @@ public class HealthBarUI : MonoBehaviour
         fillImage.color = deathColor;
         healthSlider.transform.localScale = Vector3.one;
 
-        if (showDebug) Debug.Log("Death Effects Completed");
+        if (showDebug) 
+        {
+            Debug.Log("Death Effects Completed");
+        }
     }
 
+    #endregion
 }

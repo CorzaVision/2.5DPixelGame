@@ -1,8 +1,11 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.InputSystem.EnhancedTouch;
 using System;
 
+/// <summary>
+/// Handles player movement, jumping, and input processing for the 2.5D RPG character.
+/// This script manages WASD movement, sprinting, jumping, and ground detection.
+/// </summary>
 public class PlayerController : MonoBehaviour
 {
     [Header("Movement Settings")]
@@ -22,70 +25,117 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private Color debugMissColor = Color.red;
 
     [Header("Camera Settings")]
-    [SerializeField] private Camera mainCamera;  // Reference to the main camera
+    [SerializeField] private Camera mainCamera;
 
     // Components
     private Rigidbody rb;
     private PlayerInput playerInput;
     private CapsuleCollider capsuleCollider;
+    private PlayerInventory playerInventory;
+
+    // Input Actions
     private InputAction moveAction;
     private InputAction jumpAction;
     private InputAction sprintAction;
     private InputAction inventoryAction;
-    // Movement variables
+
+    // Movement State
     private Vector2 moveInput;
     private bool isGrounded;
     private float currentSpeed;
     private float lastJumpTime;
     private Vector3 currentVelocity;
-    private Vector3 targetRotation;
 
-    private PlayerInventory playerInventory;    
-
-    private void Start()
-    {
-        playerInventory = GetComponent<PlayerInventory>();
-    }
-
-    public Vector3 GetAttackDirection()
-    {
-        return transform.forward;
-    }
+    #region Unity Lifecycle
 
     private void Awake()
     {
-        // Get components
+        InitializeComponents();
+        ValidateComponents();
+        SetupInputActions();
+        ConfigureRigidbody();
+        SetupCamera();
+    }
+
+    private void OnEnable()
+    {
+        SubscribeToInputEvents();
+        EnableInputActions();
+    }
+
+    private void OnDisable()
+    {
+        UnsubscribeFromInputEvents();
+        DisableInputActions();
+    }
+
+    private void FixedUpdate()
+    {
+        if (rb == null) return;
+        
+        CheckGrounded();
+        HandleMovement();
+        HandleRotation();
+    }
+
+    #endregion
+
+    #region Initialization
+
+    /// <summary>
+    /// Gets and caches all required components.
+    /// </summary>
+    private void InitializeComponents()
+    {
         rb = GetComponent<Rigidbody>();
         playerInput = GetComponent<PlayerInput>();
         capsuleCollider = GetComponent<CapsuleCollider>();
         playerInventory = GetComponent<PlayerInventory>();
+    }
 
-        // Validate components
+    /// <summary>
+    /// Validates that all required components are present.
+    /// </summary>
+    private void ValidateComponents()
+    {
         if (rb == null) Debug.LogError("Rigidbody component is missing!");
         if (playerInput == null) Debug.LogError("PlayerInput component is missing!");
         if (capsuleCollider == null) Debug.LogError("CapsuleCollider component is missing!");
         if (playerInventory == null) Debug.LogError("PlayerInventory component is missing!");
+    }
 
-        // Get input actions
+    /// <summary>
+    /// Sets up input actions from the Input System.
+    /// </summary>
+    private void SetupInputActions()
+    {
         moveAction = playerInput.actions["Move"];
         jumpAction = playerInput.actions["Jump"];
         sprintAction = playerInput.actions["Sprint"];
         inventoryAction = playerInput.actions["Inventory"];
 
-        // Initialize speed
         currentSpeed = moveSpeed;
+    }
 
-        // Configure Rigidbody
-        if (rb != null)
-        {
-            rb.constraints = RigidbodyConstraints.FreezeRotation;
-            rb.interpolation = RigidbodyInterpolation.Interpolate;
-            rb.collisionDetectionMode = CollisionDetectionMode.Continuous;
-            rb.useGravity = true;
-            rb.isKinematic = false;
-        }
+    /// <summary>
+    /// Configures the Rigidbody for optimal movement behavior.
+    /// </summary>
+    private void ConfigureRigidbody()
+    {
+        if (rb == null) return;
 
-        // Get main camera if not set
+        rb.constraints = RigidbodyConstraints.FreezeRotation;
+        rb.interpolation = RigidbodyInterpolation.Interpolate;
+        rb.collisionDetectionMode = CollisionDetectionMode.Continuous;
+        rb.useGravity = true;
+        rb.isKinematic = false;
+    }
+
+    /// <summary>
+    /// Sets up camera reference if not already assigned.
+    /// </summary>
+    private void SetupCamera()
+    {
         if (mainCamera == null)
         {
             mainCamera = Camera.main;
@@ -96,39 +146,61 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private void OnEnable()
+    #endregion
+
+    #region Input Management
+
+    /// <summary>
+    /// Subscribes to all input events.
+    /// </summary>
+    private void SubscribeToInputEvents()
     {
-        // Subscribe to input events
         moveAction.performed += OnMovePerformed;
         moveAction.canceled += OnMoveCanceled;
         jumpAction.performed += OnJumpPerformed;
         sprintAction.performed += OnSprintPerformed;
         sprintAction.canceled += OnSprintCanceled;
         inventoryAction.performed += OnInventoryPerformed;
-
-        // Enable input actions
-        moveAction.Enable();
-        jumpAction.Enable();
-        sprintAction.Enable();
-        inventoryAction.Enable();
     }
 
-    private void OnDisable()
+    /// <summary>
+    /// Unsubscribes from all input events.
+    /// </summary>
+    private void UnsubscribeFromInputEvents()
     {
-        // Unsubscribe from input events
         moveAction.performed -= OnMovePerformed;
         moveAction.canceled -= OnMoveCanceled;
         jumpAction.performed -= OnJumpPerformed;
         sprintAction.performed -= OnSprintPerformed;
         sprintAction.canceled -= OnSprintCanceled;
         inventoryAction.performed -= OnInventoryPerformed;
+    }
 
-        // Disable input actions
+    /// <summary>
+    /// Enables all input actions.
+    /// </summary>
+    private void EnableInputActions()
+    {
+        moveAction.Enable();
+        jumpAction.Enable();
+        sprintAction.Enable();
+        inventoryAction.Enable();
+    }
+
+    /// <summary>
+    /// Disables all input actions.
+    /// </summary>
+    private void DisableInputActions()
+    {
         moveAction.Disable();
         jumpAction.Disable();
         sprintAction.Disable();
         inventoryAction.Disable();
     }
+
+    #endregion
+
+    #region Input Event Handlers
 
     private void OnMovePerformed(InputAction.CallbackContext context)
     {
@@ -163,22 +235,72 @@ public class PlayerController : MonoBehaviour
         playerInventory?.ToggleInventory();
     }
 
+    #endregion
+
+    #region Movement Logic
+
+    /// <summary>
+    /// Handles the main movement calculation and application.
+    /// </summary>
+    private void HandleMovement()
+    {
+        Vector3 movement = new Vector3(moveInput.x, 0, moveInput.y).normalized;
+        Vector3 targetVelocity = movement * currentSpeed;
+        targetVelocity.y = rb.linearVelocity.y;
+
+        // Apply smooth movement
+        rb.linearVelocity = Vector3.SmoothDamp(
+            rb.linearVelocity, 
+            targetVelocity, 
+            ref currentVelocity, 
+            movementSmoothing
+        );
+    }
+
+    /// <summary>
+    /// Handles character rotation towards movement direction.
+    /// </summary>
+    private void HandleRotation()
+    {
+        Vector3 movement = new Vector3(moveInput.x, 0, moveInput.y).normalized;
+        
+        if (movement != Vector3.zero)
+        {
+            Quaternion targetRotation = Quaternion.LookRotation(movement);
+            transform.rotation = Quaternion.Slerp(
+                transform.rotation,
+                targetRotation,
+                rotationSpeed * Time.fixedDeltaTime
+            );
+        }
+    }
+
+    /// <summary>
+    /// Performs a jump if the jump cooldown has elapsed.
+    /// </summary>
     private void Jump()
     {
         if (Time.time - lastJumpTime < jumpCooldown) return;
+        
         rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
         lastJumpTime = Time.time;
     }
 
+    /// <summary>
+    /// Checks if the player is grounded using a raycast.
+    /// </summary>
     private void CheckGrounded()
     {
         if (capsuleCollider == null) return;
+
         Vector3 rayStart = transform.position - Vector3.up * (capsuleCollider.height * 0.5f);
         float rayDistance = groundCheckDistance + capsuleCollider.height * 0.5f;
+        
         Debug.DrawRay(rayStart, Vector3.down * rayDistance, debugRayColor);
+        
         RaycastHit hit;
-        bool wasGrounded = isGrounded;
         isGrounded = Physics.Raycast(rayStart, Vector3.down, out hit, rayDistance, groundLayer);
+        
         if (isGrounded)
         {
             Debug.DrawLine(rayStart, hit.point, debugHitColor);
@@ -189,27 +311,18 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private void FixedUpdate()
+    #endregion
+
+    #region Public Interface
+
+    /// <summary>
+    /// Returns the current forward direction of the player for attack calculations.
+    /// </summary>
+    /// <returns>The forward direction vector of the player.</returns>
+    public Vector3 GetAttackDirection()
     {
-        if (rb == null) return;
-        CheckGrounded();
-        // Calculate movement
-        Vector3 movement = new Vector3(moveInput.x, 0, moveInput.y).normalized;
-        Vector3 targetVelocity = movement * currentSpeed;
-        targetVelocity.y = rb.linearVelocity.y;
-        // Smooth movement
-        rb.linearVelocity = Vector3.SmoothDamp(rb.linearVelocity, targetVelocity, ref currentVelocity, movementSmoothing);
-        // Rotate towards movement direction
-        if (movement != Vector3.zero)
-        {
-            // Calculate the target rotation based on movement direction
-            Quaternion targetRotation = Quaternion.LookRotation(movement);
-            // Smoothly rotate towards the movement direction
-            transform.rotation = Quaternion.Slerp(
-                transform.rotation,
-                targetRotation,
-                rotationSpeed * Time.fixedDeltaTime
-            );
-        }
+        return transform.forward;
     }
+
+    #endregion
 }

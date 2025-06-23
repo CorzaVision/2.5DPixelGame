@@ -15,21 +15,21 @@ MonoBehaviour:
   lootTableName: Test Loottable
   possibleLoot:
   - item: {fileID: 11400000, guid: fd0a77e8fc0c16449b35e8d2ee7169da, type: 2}
-    dropChance: 0.5
+    dropChance: 0.25
     minCount: 1
     maxCount: 1
     minLevel: 1
     maxLevel: 1
-    guaranteed: 1
+    guaranteed: 0
     minimumRarity: 0
     rarityBonusMultiplier: 0
   - item: {fileID: 11400000, guid: 4810a3545d832cc4f9fe606323b8db0f, type: 2}
-    dropChance: 1
+    dropChance: 0.8
     minCount: 1
     maxCount: 5
     minLevel: 1
     maxLevel: 1
-    guaranteed: 1
+    guaranteed: 0
     minimumRarity: 0
     rarityBonusMultiplier: 0
   minItemsToDrop: 0

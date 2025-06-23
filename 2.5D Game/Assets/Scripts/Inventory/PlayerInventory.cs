@@ -2,45 +2,181 @@ using UnityEngine;
 using System.Collections.Generic;
 using UnityEngine.UIElements;
 
+/// <summary>
+/// Manages the player's inventory system, including items, bags, and UI interactions.
+/// This script handles item storage, stacking, and inventory display.
+/// </summary>
 public class PlayerInventory : MonoBehaviour
 {
+    #region Serialized Fields
+
+    [Header("Inventory Data")]
+    [Tooltip("List of item instances in the player's inventory")]
     public List<ItemInstance> items = new List<ItemInstance>();
+    
+    [Header("UI Controller")]
+    [Tooltip("Reference to the inventory UI controller")]
     public InventoryUIController inventoryUIController;
 
+    [Header("Bag System")]
+    [Tooltip("List of bags the player owns")]
     public List<Bag> bags = new List<Bag>();
+    [Tooltip("Maximum number of bags the player can carry")]
     public int maxBags = 2;
 
+    #endregion
 
+    #region Item Management
 
-public void AddItem(ItemData item)
-{
-    if (item.isStackable)
+    /// <summary>
+    /// Adds an item to the player's inventory with proper stacking logic.
+    /// </summary>
+    /// <param name="item">The item data to add.</param>
+    public void AddItem(ItemData item)
+    {
+        if (item.isStackable)
+        {
+            AddStackableItem(item);
+        }
+        else
+        {
+            AddNonStackableItem(item);
+        }
+    }
+
+    /// <summary>
+    /// Adds a stackable item to the inventory with stacking logic.
+    /// </summary>
+    /// <param name="item">The stackable item to add.</param>
+    private void AddStackableItem(ItemData item)
     {
         var existing = items.Find(i => i.itemData.itemID == item.itemID);
         if (existing != null)
         {
             existing.count = Mathf.Min(existing.count + item.count, item.maxCount);
-            Debug.Log("Stacked item: " + item.itemName + " (new count: " + existing.count + ")");
+            Debug.Log($"Stacked item: {item.itemName} (new count: {existing.count})");
         }
         else
         {
             items.Add(new ItemInstance(item));
-            Debug.Log("Added new stackable item: " + item.itemName);
+            Debug.Log($"Added new stackable item: {item.itemName}");
         }
     }
-    else
+
+    /// <summary>
+    /// Adds a non-stackable item to the inventory.
+    /// </summary>
+    /// <param name="item">The non-stackable item to add.</param>
+    private void AddNonStackableItem(ItemData item)
     {
         items.Add(new ItemInstance(item));
-        Debug.Log("Added non-stackable item: " + item.itemName);
-    }
-}
-    public void AddBag(BagData bagData)
-    {
-        Bag newBag = new Bag { bagData = bagData };
-        bags.Add(newBag);
-        Debug.Log("Added bag: " + bagData.bagName);
+        Debug.Log($"Added non-stackable item: {item.itemName}");
     }
 
+    /// <summary>
+    /// Adds an item instance to the inventory with advanced stacking logic.
+    /// </summary>
+    /// <param name="itemInstance">The item instance to add.</param>
+    public void AddItemInstance(ItemInstance itemInstance)
+    {
+        if (itemInstance.itemData.isStackable)
+        {
+            AddStackableItemInstance(itemInstance);
+        }
+        else
+        {
+            AddNonStackableItemInstance(itemInstance);
+        }
+    }
+
+    /// <summary>
+    /// Adds a stackable item instance with advanced stacking distribution.
+    /// </summary>
+    /// <param name="itemInstance">The stackable item instance to add.</param>
+    private void AddStackableItemInstance(ItemInstance itemInstance)
+    {
+        // Find all existing stacks of the same item that are not full
+        List<ItemInstance> existingStacks = items.FindAll(i => 
+            i.itemData.itemID == itemInstance.itemData.itemID && 
+            i.count < i.itemData.maxCount);
+
+        int amountToAdd = itemInstance.count;
+
+        // Distribute the new items into existing, non-full stacks first
+        foreach (var stack in existingStacks)
+        {
+            if (amountToAdd <= 0) break;
+
+            int spaceAvailable = stack.itemData.maxCount - stack.count;
+            int amountToTransfer = Mathf.Min(amountToAdd, spaceAvailable);
+
+            stack.count += amountToTransfer;
+            amountToAdd -= amountToTransfer;
+            Debug.Log($"Added {amountToTransfer} to an existing stack of {stack.itemData.itemName}. New count: {stack.count}");
+        }
+
+        // If there are still items left over, create new stacks for them
+        while (amountToAdd > 0)
+        {
+            int amountForNewStack = Mathf.Min(amountToAdd, itemInstance.itemData.maxCount);
+            
+            ItemInstance newStack = new ItemInstance(itemInstance.itemData, amountForNewStack);
+            items.Add(newStack);
+            
+            amountToAdd -= amountForNewStack;
+            Debug.Log($"Created a new stack of {newStack.itemData.itemName} with {newStack.count} items.");
+        }
+    }
+
+    /// <summary>
+    /// Adds a non-stackable item instance to the inventory.
+    /// </summary>
+    /// <param name="itemInstance">The non-stackable item instance to add.</param>
+    private void AddNonStackableItemInstance(ItemInstance itemInstance)
+    {
+        items.Add(itemInstance);
+        Debug.Log($"Added non-stackable item: {itemInstance.itemData.itemName}");
+    }
+
+    /// <summary>
+    /// Removes an item instance from the inventory.
+    /// </summary>
+    /// <param name="itemInstance">The item instance to remove.</param>
+    /// <returns>True if the item was successfully removed, false otherwise.</returns>
+    public bool RemoveItemInstance(ItemInstance itemInstance)
+    {
+        return items.Remove(itemInstance);
+    }
+
+    #endregion
+
+    #region Bag Management
+
+    /// <summary>
+    /// Adds a new bag to the player's inventory.
+    /// </summary>
+    /// <param name="bagData">The bag data to create the bag from.</param>
+    public void AddBag(BagData bagData)
+    {
+        if (bags.Count >= maxBags)
+        {
+            Debug.LogWarning($"Cannot add bag: Maximum bag limit ({maxBags}) reached.");
+            return;
+        }
+
+        Bag newBag = new Bag { bagData = bagData };
+        bags.Add(newBag);
+        Debug.Log($"Added bag: {bagData.bagName}");
+    }
+
+    #endregion
+
+    #region UI Management
+
+    /// <summary>
+    /// Toggles the inventory UI visibility.
+    /// This method is kept unchanged as requested.
+    /// </summary>
     public void ToggleInventory()
     {
         if (inventoryUIController != null)
@@ -67,51 +203,45 @@ public void AddItem(ItemData item)
         }
     }
 
-    public void AddItemInstance(ItemInstance itemInstance)
+    #endregion
+
+    #region Public Interface
+
+    /// <summary>
+    /// Gets the total number of items in the inventory.
+    /// </summary>
+    /// <returns>The count of items in the inventory.</returns>
+    public int GetItemCount()
     {
- if (itemInstance.itemData.isStackable)
-        {
-            // Find all existing stacks of the same item that are not full.
-            List<ItemInstance> existingStacks = items.FindAll(i => 
-                i.itemData.itemID == itemInstance.itemData.itemID && 
-                i.count < i.itemData.maxCount);
-
-            int amountToAdd = itemInstance.count;
-
-            // Distribute the new items into existing, non-full stacks first.
-            foreach (var stack in existingStacks)
-            {
-                if (amountToAdd <= 0) break;
-
-                int spaceAvailable = stack.itemData.maxCount - stack.count;
-                int amountToTransfer = Mathf.Min(amountToAdd, spaceAvailable);
-
-                stack.count += amountToTransfer;
-                amountToAdd -= amountToTransfer;
-                Debug.Log($"Added {amountToTransfer} to an existing stack of {stack.itemData.itemName}. New count: {stack.count}");
-            }
-
-            // If there are still items left over, create new stacks for them.
-            while (amountToAdd > 0)
-            {
-                int amountForNewStack = Mathf.Min(amountToAdd, itemInstance.itemData.maxCount);
-                
-                ItemInstance newStack = new ItemInstance(itemInstance.itemData, amountForNewStack);
-                items.Add(newStack);
-                
-                amountToAdd -= amountForNewStack;
-                Debug.Log($"Created a new stack of {newStack.itemData.itemName} with {newStack.count} items.");
-            }
-        }
-        else // For non-stackable items, just add it.
-        {
-            items.Add(itemInstance);
-            Debug.Log("Added non-stackable item: " + itemInstance.itemData.itemName);
-        }
+        return items.Count;
     }
 
-    public bool RemoveItemInstance(ItemInstance itemInstance)
+    /// <summary>
+    /// Checks if the inventory is empty.
+    /// </summary>
+    /// <returns>True if the inventory has no items, false otherwise.</returns>
+    public bool IsEmpty()
     {
-        return items.Remove(itemInstance);
+        return items.Count == 0;
     }
+
+    /// <summary>
+    /// Gets the number of bags the player owns.
+    /// </summary>
+    /// <returns>The count of bags in the inventory.</returns>
+    public int GetBagCount()
+    {
+        return bags.Count;
+    }
+
+    /// <summary>
+    /// Checks if the player can add more bags.
+    /// </summary>
+    /// <returns>True if more bags can be added, false otherwise.</returns>
+    public bool CanAddBag()
+    {
+        return bags.Count < maxBags;
+    }
+
+    #endregion
 }
