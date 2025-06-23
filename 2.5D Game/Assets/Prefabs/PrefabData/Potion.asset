@@ -18,7 +18,7 @@ MonoBehaviour:
   itemLevel: 1
   itemName: Health Potion
   itemDescription: Health
-  itemIcon: 
+  icon: {fileID: 2800000, guid: 7ee6dbb43effbca45a1f91317ccea8ad, type: 3}
   itemType: 2
   weaponSubType: 0
   armorSubType: 0
@@ -33,6 +33,9 @@ MonoBehaviour:
   manaRestore: 0
   staminaRestore: 0
   critChanceRestore: 0
+  potionType: 0
+  potionCount: 0
+  potionMaxCount: 0
   damage: 20
   weaponCritChance: 20
   weaponCritDamage: 5

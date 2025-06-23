@@ -78,7 +78,13 @@ using UnityEngine;
     OneHanded,
     TwoHanded,
    }
-   
+
+   public enum PotionType
+   {
+    Health,
+    Mana,
+    Stamina,
+   }
 
     public interface IItem
     {
@@ -99,5 +105,8 @@ using UnityEngine;
         WeaponHand weaponHand { get; set; }
         ArmorWeight armorWeight { get; set; }
         WeaponWeight weaponWeight { get; set; }
+        PotionType potionType { get; set; }
+        int potionCount { get; set; }
+        int potionMaxCount { get; set; }
     }
 

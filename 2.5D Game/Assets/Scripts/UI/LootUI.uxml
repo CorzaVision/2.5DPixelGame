@@ -1,0 +1,20 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <Style src="project://database/Assets/Scripts/UI/RPGGameCSS.uss?fileID=7433441132597879392&amp;guid=70914494e07c2be4b974f3161be3fd2e&amp;type=3#RPGGameCSS" />
+    <ui:VisualElement name="loot-panel" class="loot-panel">
+        <ui:VisualElement name="loot-header" class="loot-header">
+            <ui:Label text="Loot" name="loot-title" class="loot-title" />
+            <ui:Button name="close-button" text="✕" class="close-button" />
+        </ui:VisualElement>
+        <ui:ScrollView name="item-list" class="item-list" />
+        <ui:VisualElement name="button-container" class="button-container">
+            <ui:Button name="loot-all-button" text="Loot All" class="loot-all-button" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+
+    <ui:VisualElement name="item-tooltip" class="tooltip-panel">
+        <ui:Label name="tooltip-name" class="tooltip-title" />
+        <ui:Label name="tooltip-rarity" class="tooltip-rarity" />
+        <ui:Label name="tooltip-description" class="tooltip-description" />
+        <ui:VisualElement name="tooltip-stats-list" class="tooltip-stats-list" />
+    </ui:VisualElement>
+</ui:UXML>

@@ -1,0 +1,275 @@
+.inventory-panel, .loot-panel { /* Style both panels at once */
+    position: absolute;
+    width: 700px;
+    background-color: #181818;
+    border-width: 2px;
+    border-color: #8B7355;
+    padding: 20px;
+    top: 50%;
+    left: 50%;
+    translate: -50% -50%;
+}
+
+.loot-panel { /* Specific override for loot panel width */
+    width: 450px;
+}
+
+.inventory-header, .loot-header {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom-width: 2px;
+    border-bottom-color: #444;
+}
+
+.inventory-title, .loot-title {
+    color: #FFD700;
+    font-size: 22px;
+    font-weight: bold;
+}
+
+.close-button {
+    width: 30px;
+    height: 30px;
+    background-color: #8B0000;
+    color: #FFD700;
+    font-size: 16px;
+    font-weight: bold;
+    border-width: 0px;
+}
+
+.close-button:hover {
+    background-color: #DC143C;
+}
+
+.main-content {
+    flex-direction: row;
+}
+
+.pane-title {
+    color: #C0C0C0;
+    font-size: 16px;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+.character-pane {
+    width: 40%;
+    padding-right: 15px;
+    border-right-width: 1px;
+    border-right-color: #444;
+}
+
+.inventory-pane {
+    flex-grow: 1;
+    padding-left: 15px;
+}
+
+.equipment-grid, .inventory-grid {
+    background-color: #0A0A0A;
+    padding: 10px;
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+
+.stats-display {
+    background-color: #0A0A0A;
+    padding: 15px;
+}
+
+.stats-display > .stat-label {
+    color: #C0C0C0;
+    font-size: 14px;
+    margin-bottom: 5px;
+}
+
+/* Add this new style for inventory and equipment icons */
+.slot-icon {
+    width: 100%;
+    height: 100%;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.inventory-slot {
+    width: 60px;
+    height: 60px;
+    background-color: #2A2A2A;
+    border-color: #555;
+    border-width: 1px;
+    margin: 4px;
+    justify-content: center;
+    align-items: center;
+}
+
+.inventory-slot:hover {
+    border-color: #FFD700;
+}
+
+.equipment-slot {
+    flex-direction: row;
+    align-items: center;
+    width: 100%;
+    height: 60px;
+    background-color: #2A2A2A;
+    border-color: #8B7355;
+    border-width: 1px;
+    margin: 4px;
+    padding: 5px;
+}
+
+.equipment-icon-container {
+    width: 50px;
+    height: 50px;
+    margin-right: 10px;
+    border-width: 2px;
+    justify-content: center;
+    align-items: center;
+}
+
+.equipment-item-name {
+    -unity-font-style: bold;
+    font-size: 14px;
+}
+
+.stack-count-label {
+    position: absolute;
+    bottom: 2px;
+    right: 4px;
+    font-size: 14px;
+    -unity-font-style: bold;
+    color: white;
+    -unity-text-outline-width: 1.5px;
+    -unity-text-outline-color: black;
+}
+
+/* --- TOOLTIP STYLES --- */
+.tooltip-panel {
+    position: absolute;
+    display: none;
+    background-color: rgb(30, 30, 30);
+    border-color: rgb(100, 100, 100);
+    border-width: 2px;
+    border-radius: 5px;
+    padding: 10px;
+    min-width: 200px;
+    max-width: 300px;
+}
+
+.tooltip-title {
+    -unity-font-style: bold;
+    font-size: 16px;
+    margin-bottom: 5px;
+}
+
+/* Add this new style for the rarity text */
+.tooltip-rarity {
+    -unity-font-style: bold;
+    font-size: 14px;
+    margin-bottom: 10px;
+}
+
+.tooltip-description {
+    font-size: 12px;
+    -unity-font-style: italic;
+    white-space: normal;
+    margin-bottom: 10px;
+}
+
+.tooltip-stat-label {
+    font-size: 14px;
+    color: rgb(200, 200, 200);
+}
+
+
+/* --- SHARED RARITY TEXT COLORS --- */
+.rarity-common { color: #9D9D9D; }
+.rarity-uncommon { color: #1EFF00; }
+.rarity-rare { color: #0070DD; }
+.rarity-epic { color: #A335EE; }
+.rarity-legendary { color: #FF8000; }
+
+/* --- SHARED RARITY BORDER COLORS --- */
+.rarity-border-common { border-color: #9D9D9D; }
+.rarity-border-uncommon { border-color: #1EFF00; }
+.rarity-border-rare { border-color: #0070DD; }
+.rarity-border-epic { border-color: #A335EE; }
+.rarity-border-legendary { border-color: #FF8000; }
+
+
+/* --- LOOT UI SPECIFIC STYLES --- */
+.item-list {
+    flex: 1;
+    margin: 15px 0;
+    background-color: #0A0A0A;
+    padding: 10px;
+}
+
+.loot-item {
+    background-color: #2A2A2A;
+    margin: 4px 0;
+    padding: 8px 15px;
+    border-left-width: 4px;
+    flex-direction: row;
+    align-items: center;
+}
+
+/* --- NEW STYLE FOR LOOT ITEM ICONS --- */
+.loot-item-icon {
+    width: 40px;
+    height: 40px;
+    margin-right: 15px; /* Space between icon and name */
+    background-size: contain; /* Ensures the whole icon is visible */
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.loot-item:hover {
+    background-color: #404040;
+    border-left-color: #FFD700;
+}
+
+.loot-item .item-name {
+    font-size: 14px;
+    font-weight: bold;
+    flex-grow: 1; /* This makes the name take up available space, pushing the count to the right */
+}
+
+.loot-item .item-count {
+    color: #C0C0C0;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+/* Apply border color to loot items based on rarity */
+.loot-item.rarity-common { border-left-color: #9D9D9D; }
+.loot-item.rarity-uncommon { border-left-color: #1EFF00; }
+.loot-item.rarity-rare { border-left-color: #0070DD; }
+.loot-item.rarity-epic { border-left-color: #A335EE; }
+.loot-item.rarity-legendary { border-left-color: #FF8000; }
+
+
+.button-container {
+    flex-direction: row;
+    justify-content: center;
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top-width: 2px;
+    border-top-color: #444;
+}
+
+.loot-all-button {
+    background-color: #228B22;
+    color: #FFFFFF;
+    padding: 12px 25px;
+    font-size: 16px;
+    font-weight: bold;
+    border-width: 0;
+}
+
+.loot-all-button:hover {
+    background-color: #32CD32;
+}

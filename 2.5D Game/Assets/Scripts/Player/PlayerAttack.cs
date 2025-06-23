@@ -7,8 +7,6 @@ public class PlayerAttack : MonoBehaviour
 {
     [Header("Attack Settings")]
     [SerializeField] private float attackRange = 2f;
-    [SerializeField] private float attackDamage = 10f;
-    [SerializeField] private float attackCooldown = 0.5f;
     [SerializeField] private LayerMask attackableLayers;
 
     [Header("Visual Effects")]
@@ -33,25 +31,13 @@ public class PlayerAttack : MonoBehaviour
 
     private void Awake()
     {
-        playerController = FindFirstObjectByType<PlayerController>();
-        if (playerController == null)
-        {
-            Debug.LogError("PlayerController not found in the scene.");
-            return;
-        }
-        
-        playerInput = playerController.GetComponent<PlayerInput>();
-        if (playerInput == null)
-        {
-            Debug.LogError("PlayerInput component not found on PlayerController.");
-            return;
-        }
+        playerController = GetComponent<PlayerController>();
+        playerStats = GetComponent<PlayerStats>();
+        playerInput = GetComponent<PlayerInput>();
 
-        playerStats = FindFirstObjectByType<PlayerStats>();
-        if (playerStats == null)
-        {
-            Debug.LogError("PlayerStats component not found on player!");
-        }
+        if (playerController == null) Debug.LogError("PlayerController not found on this GameObject.");
+        if (playerStats == null) Debug.LogError("PlayerStats not found on this GameObject.");
+        if (playerInput == null) Debug.LogError("PlayerInput not found on this GameObject.");
         
         Debug.Log("Available Action Maps:");
         foreach (var actionMap in playerInput.actions.actionMaps)

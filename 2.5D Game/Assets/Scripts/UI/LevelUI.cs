@@ -64,10 +64,21 @@ public class LevelUI : MonoBehaviour
         }
         if (experienceBar != null)
         {
-            experienceBar.value = experience / playerStats.ExperienceToNextLevel;
-            if (experienceBarFillImage != null)
+            if (playerStats.ExperienceToNextLevel > 0)
             {
-                experienceBarFillImage.color = experienceBarColor.Evaluate(experienceBar.value);
+                experienceBar.value = experience / playerStats.ExperienceToNextLevel;
+                if (experienceBarFillImage != null)
+                {
+                    experienceBarFillImage.color = experienceBarColor.Evaluate(experienceBar.value);
+                }
+            }
+            else
+            {
+                experienceBar.value = 0;
+                if (experienceBarFillImage != null)
+                {
+                    experienceBarFillImage.color = experienceBarColor.Evaluate(0);
+                }
             }
         }
     }

@@ -20,8 +20,21 @@ public class ItemDataEditor : Editor
         EditorGUILayout.PropertyField(serializedObject.FindProperty("itemLevel")); // Item Level
         EditorGUILayout.PropertyField(serializedObject.FindProperty("itemName")); // Item Name
         EditorGUILayout.PropertyField(serializedObject.FindProperty("itemDescription")); // Item Description
+        
+        serializedObject.FindProperty("icon").objectReferenceValue = 
+            EditorGUILayout.ObjectField("Icon", serializedObject.FindProperty("icon").objectReferenceValue, typeof(Texture), false);
+
         EditorGUILayout.Space();
 
+        ItemData itemData = (ItemData)target;
+        if (itemType == ItemType.Consumable)
+        {
+            EditorGUILayout.LabelField("Is Stackable", itemData.isStackable.ToString());
+        }
+        else
+        {
+            EditorGUILayout.LabelField("Is Equippable", itemData.isEquippable.ToString());
+        }
         EditorGUILayout.Space();
         EditorGUILayout.LabelField("Item Type", EditorStyles.boldLabel); // Item Type
         EditorGUILayout.PropertyField(itemTypeProp, new GUIContent("Item Type")); // Item Type
@@ -49,14 +62,25 @@ public class ItemDataEditor : Editor
         EditorGUILayout.LabelField("Item Rarity", EditorStyles.boldLabel); // Item Rarity
         EditorGUILayout.PropertyField(serializedObject.FindProperty("itemRarity"), new GUIContent("Item Rarity")); // Item Rarity
 
-        if (itemType == ItemType.Consumable) // Consumable Stats
+        if (itemType == ItemType.Consumable)
         {
             EditorGUILayout.Space();
-            EditorGUILayout.LabelField("Consumable Stats", EditorStyles.boldLabel); // Consumable Stats
-            EditorGUILayout.PropertyField(serializedObject.FindProperty("healthRestore")); // Health Restore
-            EditorGUILayout.PropertyField(serializedObject.FindProperty("manaRestore")); // Mana Restore
-            EditorGUILayout.PropertyField(serializedObject.FindProperty("staminaRestore")); // Stamina Restore
-            EditorGUILayout.PropertyField(serializedObject.FindProperty("critChanceRestore")); // Crit Chance Restore
+            EditorGUILayout.LabelField("Consumable Stats", EditorStyles.boldLabel);
+            EditorGUILayout.PropertyField(serializedObject.FindProperty("healthRestore"));
+            EditorGUILayout.PropertyField(serializedObject.FindProperty("manaRestore"));
+            EditorGUILayout.PropertyField(serializedObject.FindProperty("staminaRestore"));
+            EditorGUILayout.PropertyField(serializedObject.FindProperty("critChanceRestore"));
+
+            // Get the current consumable subtype
+            SerializedProperty subTypeProp = serializedObject.FindProperty("consumableSubType");
+            ConsumableSubType consumableSubType = (ConsumableSubType)subTypeProp.enumValueIndex;
+
+            if (consumableSubType == ConsumableSubType.Potion)
+            {
+                EditorGUILayout.PropertyField(serializedObject.FindProperty("potionType"));
+                EditorGUILayout.PropertyField(serializedObject.FindProperty("potionCount"));
+                EditorGUILayout.PropertyField(serializedObject.FindProperty("potionMaxCount"));
+            }
         }
 
         if (itemType == ItemType.Weapon) // Weapon Stats

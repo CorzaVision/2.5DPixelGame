@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 1893466144371522216}
   - component: {fileID: 8488688369400986679}
   - component: {fileID: 9098100999238266045}
-  - component: {fileID: 3775948621495868668}
+  - component: {fileID: 291309907708615164}
   m_Layer: 6
   m_Name: Cube
   m_TagString: Untagged
@@ -109,7 +109,7 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &3775948621495868668
+--- !u!114 &291309907708615164
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -122,13 +122,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   maxHealth: 100
-  currentHealth: 0
+  currentHealth: 100
   showDebug: 1
   enemyLevel: 1
   damageFlashColor: {r: 1, g: 0, b: 0, a: 1}
   damageFlashDuration: 0.2
   experienceReward: 50
   experienceMultiplier: 1.1
+  lootTable: {fileID: 11400000, guid: 8562ac8283110eb45941077d49be0919, type: 2}
 --- !u!1 &2816853055426011118
 GameObject:
   m_ObjectHideFlags: 0

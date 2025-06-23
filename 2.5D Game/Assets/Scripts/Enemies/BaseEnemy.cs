@@ -1,5 +1,6 @@
 using UnityEngine;
 using Interface;
+using System.Collections;
 
 public class BaseEnemy : MonoBehaviour, IDamageable
 {
@@ -16,6 +17,9 @@ public class BaseEnemy : MonoBehaviour, IDamageable
     [Header("Experience Settings")]
     [SerializeField] private float experienceReward = 50f;
     [SerializeField] private float experienceMultiplier = 1.1f;
+
+    [Header("Loot Settings")]
+    [SerializeField] private LootTable lootTable;
 
     private PlayerStats playerStats;
     private MeshRenderer enemyMeshRenderer;
@@ -91,6 +95,11 @@ public class BaseEnemy : MonoBehaviour, IDamageable
         else
         {
             Debug.LogWarning("PlayerStats not found! No experience given.");
+        }
+        
+        if (lootTable != null)
+        {
+            LootDropManager.Instance.DropLootFromEnemy(lootTable, transform.position, enemyLevel);
         }
         
         if (TryGetComponent<Collider>(out var collider))

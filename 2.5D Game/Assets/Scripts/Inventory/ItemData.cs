@@ -10,7 +10,7 @@ public class ItemData : ScriptableObject
     public int itemLevel;
     public string itemName;
     public string itemDescription;
-    public string itemIcon;
+    public Texture icon;
     [Header("Item Type")]
 
     public ItemType itemType;
@@ -22,6 +22,8 @@ public class ItemData : ScriptableObject
     public WeaponHand weaponHand;
     public ArmorWeight armorWeight;
     public WeaponWeight weaponWeight;
+    public bool isStackable => itemType == ItemType.Consumable;
+    public bool isEquippable => itemType == ItemType.Weapon || itemType == ItemType.Armor;
 
     [Header("Item Rarity")]
     public ItemRarity itemRarity;
@@ -31,7 +33,10 @@ public class ItemData : ScriptableObject
     public int manaRestore;
     public int staminaRestore;
     public int critChanceRestore;
-
+    public PotionType potionType;
+    public int potionCount;
+    public int potionMaxCount;
+    
     [Header("Weapon Stats")]
     public int damage;
     public int weaponCritChance;
@@ -52,5 +57,7 @@ public class ItemData : ScriptableObject
     public int questReward;
     public int questRewardMax;
     public int questRewardMin;
+
+
 
 }
