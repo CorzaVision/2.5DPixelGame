@@ -14,6 +14,15 @@
             </ui:VisualElement>
             <ui:VisualElement name="inventory-pane" class="inventory-pane">
                 <ui:Label text="Inventory" class="pane-title" />
+                <ui:VisualElement name="sort-controls" class="sort-controls">
+                    <ui:Label text="Sort By:" class="sort-label"/>
+                    <ui:Button name="sort-type" text="Type" class="sort-button"/>
+                    <ui:Button name="sort-rarity" text="Rarity" class="sort-button"/>
+                    <ui:Button name="sort-level" text="Level" class="sort-button"/>
+                    <ui:Button name="sort-name" text="Name" class="sort-button"/>
+                    <ui:Button name="sort-value" text="Value" class="sort-button"/>
+                    <ui:Button name="auto-stack" text="Auto Stack" class="sort-button"/>
+                </ui:VisualElement>
                 <ui:VisualElement name="inventory-grid" class="inventory-grid" />
             </ui:VisualElement>
         </ui:VisualElement>

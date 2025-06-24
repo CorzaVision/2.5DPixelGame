@@ -1,6 +1,8 @@
 using UnityEngine;
 using System.Collections.Generic;
 using UnityEngine.UIElements;
+using System;
+using System.Linq;
 
 /// <summary>
 /// Manages the player's inventory system, including items, bags, and UI interactions.
@@ -247,7 +249,7 @@ public class PlayerInventory : MonoBehaviour
 
     #region Sorting & Organization
 
-    public enum SortingType
+    public enum SortType
     {
         Name,
         Type,
@@ -259,31 +261,31 @@ public class PlayerInventory : MonoBehaviour
     /// <summary>
     /// Sorts the inventory items based on the sorting type.
     /// </summary>
-    /// <param name="sortingType">The sorting type to use.</param>
-    public void SortInventory(SortingType sortingType)
+    /// <param name="sortType">The sorting type to use.</param>
+    public void SortInventory(SortType sortType)
     {
-        switch (sortingType)
+        switch (sortType)
         {
-            case SortingType.Name: // Sort by item name
+            case SortType.Name:
                 items.Sort((a, b) => string.Compare(a.itemData.itemName, b.itemData.itemName, StringComparison.OrdinalIgnoreCase));
                 break;
-            case SortingType.Type: // Sort by item type
+            case SortType.Type:
                 items.Sort((a, b) => string.Compare(a.itemData.itemType.ToString(), b.itemData.itemType.ToString(), StringComparison.OrdinalIgnoreCase));
                 break;
-            case SortingType.Rarity: // Sort by item rarity
+            case SortType.Rarity:
                 items.Sort((a, b) => string.Compare(a.itemData.itemRarity.ToString(), b.itemData.itemRarity.ToString(), StringComparison.OrdinalIgnoreCase));
                 break;
-            case SortingType.Level: // Sort by item level
+            case SortType.Level:
                 items.Sort((a, b) => a.itemData.itemLevel.CompareTo(b.itemData.itemLevel));
                 break;
-            case SortingType.Amount: // Sort by item amount
+            case SortType.Amount:
                 items.Sort((a, b) => a.count.CompareTo(b.count));
                 break;
-            case SortingType.Value: // Sort by item value
+            case SortType.Value:
                 items.Sort((a, b) => CalculateItemValue(a).CompareTo(CalculateItemValue(b)));
                 break;
             default:
-                Debug.LogError($"Invalid sorting type: {sortingType}");
+                Debug.LogError($"Invalid sorting type: {sortType}");
                 break;
         }
     }
@@ -293,7 +295,7 @@ public class PlayerInventory : MonoBehaviour
     /// </summary>
     /// <param name="item">The item to calculate the value of.</param>
     /// <returns>The value of the item.</returns>
-    private int CalculateItemValue(ItemData item)
+    private int CalculateItemValue(ItemInstance item)
     {
         switch (item.itemData.itemType)
         {
@@ -310,29 +312,46 @@ public class PlayerInventory : MonoBehaviour
         }
     }
 
-    public int GetWeaponValue()
+    /// <summary>
+    /// Automatically consolidates partial stacks of the same item type.
+    /// </summary>
+    public void AutoStackItems()
     {
-     int statValue = damage * 10 + weaponCritDamage +  weaponCritChance *5;
-     int RarityMultiplier = GetRarityMultiplier(item.itemData.itemRarity);
-     return statValue * RarityMultiplier;
+        // Group items by their itemID
+        var itemGroups = items.GroupBy(item => item.itemData.itemID).ToList();
+        
+        // Clear current inventory
+        items.Clear();
+        
+        foreach (var group in itemGroups)
+        {
+            if (!group.First().itemData.isStackable)
+            {
+                // Non-stackable items just get added back
+                items.AddRange(group);
+                continue;
+            }
+            
+            // Calculate total count for this item type
+            int totalCount = group.Sum(item => item.count);
+            int maxStackSize = group.First().itemData.maxCount;
+            
+            // Create full stacks
+            while (totalCount >= maxStackSize)
+            {
+                items.Add(new ItemInstance(group.First().itemData, maxStackSize));
+                totalCount -= maxStackSize;
+            }
+            
+            // Add remaining items as a partial stack
+            if (totalCount > 0)
+            {
+                items.Add(new ItemInstance(group.First().itemData, totalCount));
+            }
+        }
+        
+        Debug.Log("Auto-stack completed");
     }
-
-    public int GetArmorValue()
-    {
-        int primaryValue = armorRating *5 + healthRating * 3;
-        int secondaryValue = defenseRating * 2 + magicDefenseRating * 2;
-        int totalValue = primaryValue + secondaryValue;
-        int RarityMultiplier = GetRarityMultiplier(item.itemData.itemRarity);
-        return totalValue * RarityMultiplier;
-    }
-
-    public int GetConsumableValue()
-    {
-        int baseValue = healthRestore * 5 + manaRestore * 5 + staminaRestore * 5;
-        int potionBonus = potionCount > 1 ? potionCount * 10 : 0;
-        return (baseValue + potionBonus)
-    }
-
 
     #endregion
 }

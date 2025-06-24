@@ -1668,7 +1668,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8035265434432781536, guid: 8107a89713cc5264da7b0bdb9751f1a5, type: 3}
       propertyPath: lootbag.items.Array.size
-      value: 5
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 8035265434432781536, guid: 8107a89713cc5264da7b0bdb9751f1a5, type: 3}
       propertyPath: lootbag.items.Array.data[2].count
@@ -1693,10 +1693,10 @@ PrefabInstance:
     - target: {fileID: 8035265434432781536, guid: 8107a89713cc5264da7b0bdb9751f1a5, type: 3}
       propertyPath: lootbag.items.Array.data[3].itemData
       value: 
-      objectReference: {fileID: 11400000, guid: f6252ba93d8d07a4e8aa504071416976, type: 2}
+      objectReference: {fileID: 11400000, guid: ca4bafdf42f29ce408c793b7add68bdb, type: 2}
     - target: {fileID: 8035265434432781536, guid: 8107a89713cc5264da7b0bdb9751f1a5, type: 3}
       propertyPath: lootbag.items.Array.data[3].uniqueId
-      value: 3
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 8035265434432781536, guid: 8107a89713cc5264da7b0bdb9751f1a5, type: 3}
       propertyPath: lootbag.items.Array.data[4].itemData

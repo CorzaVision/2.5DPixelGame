@@ -20,6 +20,13 @@ public class InventoryUIController : MonoBehaviour
     private VisualElement equipmentGrid;
     private VisualElement statsDisplay;
     private Button closeButton;
+    private VisualElement sortControls;
+    private Button sortTypeButton;
+    private Button sortRarityButton;
+    private Button sortLevelButton;
+    private Button sortNameButton;
+    private Button sortValueButton;
+    private Button autoStackButton;
     
     // Tooltip Elements
     private VisualElement itemTooltip;
@@ -79,6 +86,15 @@ public class InventoryUIController : MonoBehaviour
         tooltipRarity = root.Q<Label>("tooltip-rarity");
         tooltipDescription = root.Q<Label>("tooltip-description");
         tooltipStatsList = root.Q<VisualElement>("tooltip-stats-list");
+
+        // Sort controls
+        sortControls = root.Q<VisualElement>("sort-controls");
+        sortTypeButton = root.Q<Button>("sort-type");
+        sortRarityButton = root.Q<Button>("sort-rarity");
+        sortLevelButton = root.Q<Button>("sort-level");
+        sortNameButton = root.Q<Button>("sort-name");
+        sortValueButton = root.Q<Button>("sort-value");
+        autoStackButton = root.Q<Button>("auto-stack");
     }
 
     /// <summary>
@@ -89,6 +105,20 @@ public class InventoryUIController : MonoBehaviour
         if (closeButton != null)
         {
             closeButton.clicked += Hide;
+        }
+
+        if (sortControls != null)
+        {
+            sortTypeButton.clicked += () => SortInventory(PlayerInventory.SortType.Type);
+            sortRarityButton.clicked += () => SortInventory(PlayerInventory.SortType.Rarity);
+            sortLevelButton.clicked += () => SortInventory(PlayerInventory.SortType.Level);
+            sortNameButton.clicked += () => SortInventory(PlayerInventory.SortType.Name);
+            sortValueButton.clicked += () => SortInventory(PlayerInventory.SortType.Value);
+        }
+
+        if (autoStackButton != null)
+        {
+            autoStackButton.clicked += AutoStackInventory;
         }
     }
 
@@ -492,5 +522,25 @@ public class InventoryUIController : MonoBehaviour
     private void OnCurrencyChanged(CurrencyType type, int amount)
     {
         RefreshStats();
+    }
+
+    private void SortInventory(PlayerInventory.SortType sortType)
+    {
+        if (currentPlayerInventory != null)
+        {
+            currentPlayerInventory.SortInventory(sortType);
+            RefreshInventorySlots(); // Refresh the UI after sorting
+            Debug.Log($"Inventory sorted by: {sortType}");
+        }
+    }
+
+    private void AutoStackInventory()
+    {
+        if (currentPlayerInventory != null)
+        {
+            currentPlayerInventory.AutoStackItems(); // Correct method name
+            RefreshInventorySlots(); // Refresh the UI after auto-stacking
+            Debug.Log("Inventory auto-stacked");
+        }
     }
 }

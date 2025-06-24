@@ -86,4 +86,60 @@ public class ItemData : ScriptableObject
     public int craftingMaterialValue = 1;
     public int craftingMaterialMinValue = 1;
     public int craftingMaterialMaxValue = 1;
+
+    /// <summary>
+    /// Calculates the total value of this weapon including rarity multiplier.
+    /// </summary>
+    /// <returns>The calculated total weapon value.</returns>
+    public int GetWeaponValue()
+    {
+        int statValue = damage * 5 + weaponCritDamage * 2 + weaponCritChance * 3;
+        int rarityMultiplier = GetRarityMultiplier();
+        return statValue * rarityMultiplier;
+    }
+
+    /// <summary>
+    /// Calculates the total value of this armor including rarity multiplier.
+    /// </summary>
+    /// <returns>The calculated total armor value.</returns>
+    public int GetArmorValue()
+    {
+        int defensiveValue = armorRating * 5 + healthRating * 3 + defenseRating * 2 + magicDefenseRating * 2;
+        int offensiveValue = damageBonus * 4 + critChanceBonus * 3 + critDamageBonus * 2 + attackSpeedBonus * 2;
+        int totalValue = defensiveValue + offensiveValue;
+        int rarityMultiplier = GetRarityMultiplier();
+        return totalValue * rarityMultiplier;
+    }
+
+    /// <summary>
+    /// Calculates the total value of this consumable.
+    /// </summary>
+    /// <returns>The calculated total consumable value.</returns>
+    public int GetConsumableValue()
+    {
+        int baseValue = healthRestore * 2 + manaRestore * 2 + staminaRestore * 2;
+        int potionBonus = potionCount > 1 ? potionCount * 10 : 0;
+        return baseValue + potionBonus;
+    }
+
+    /// <summary>
+    /// Gets the value multiplier based on item rarity.
+    /// </summary>
+    /// <returns>The multiplier value for the rarity.</returns>
+    private int GetRarityMultiplier()
+    {
+        switch (itemRarity)
+        {
+            case ItemRarity.Common:
+                return 1;
+            case ItemRarity.Uncommon:
+                return 2;
+            case ItemRarity.Rare:
+                return 4;
+            case ItemRarity.Epic:
+                return 8;
+            default:
+                return 1;
+        }
+    }
 }

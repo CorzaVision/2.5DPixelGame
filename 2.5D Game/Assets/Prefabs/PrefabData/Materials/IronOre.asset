@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: IronOre
   m_EditorClassIdentifier: 
   itemID: 5
-  itemName: 
-  itemDescription: 
+  itemName: Iron Ore
+  itemDescription: Piece of Iron Ore
   icon: {fileID: 0}
   itemLevel: 0
   itemRarity: 0
@@ -26,6 +26,7 @@ MonoBehaviour:
   consumableSubType: 0
   questSubType: 0
   currencySubType: 0
+  craftingMaterialSubType: 0
   weaponType: 0
   weaponHand: 0
   weaponWeight: 0
@@ -56,5 +57,7 @@ MonoBehaviour:
   currencyValue: 1
   currencyMinValue: 1
   currencyMaxValue: 1
-  craftingMaterialSubType: 0
-  craftingMaterialTier: 0
+  craftingMaterialTier: 1
+  craftingMaterialValue: 0
+  craftingMaterialMinValue: 1
+  craftingMaterialMaxValue: 1
