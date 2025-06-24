@@ -43,6 +43,14 @@ public class InventoryUIController : MonoBehaviour
         InitializeUIElements();
         SetupEventHandlers();
         HideInventory();
+        if (playerStats != null)
+            playerStats.OnCurrencyChanged += OnCurrencyChanged;
+    }
+
+    private void OnDisable()
+    {
+        if (playerStats != null)
+            playerStats.OnCurrencyChanged -= OnCurrencyChanged;
     }
 
     #endregion
@@ -402,6 +410,11 @@ public class InventoryUIController : MonoBehaviour
                 playerStats.UseConsumable(item);
                 Debug.Log($"Used {item.itemData.itemName}");
                 break;
+                
+            case ItemType.Currency:
+                playerStats.UseItem(item);
+                Debug.Log($"Collected {item.itemData.itemName}");
+                break;
         }
 
         RefreshAll();
@@ -424,13 +437,19 @@ public class InventoryUIController : MonoBehaviour
             return;
         }
 
-        // Add stat labels
+        // Main stats
         statsDisplay.Add(CreateStatLabel($"Health: {playerStats.CurrentHealth}"));
         statsDisplay.Add(CreateStatLabel($"Attack: {playerStats.CurrentAttack}"));
         statsDisplay.Add(CreateStatLabel($"Defense: {playerStats.CurrentDefense}"));
         statsDisplay.Add(CreateStatSeparator());
         statsDisplay.Add(CreateStatLabel($"Level: {playerStats.CurrentLevel}"));
         statsDisplay.Add(CreateStatLabel($"EXP: {(int)playerStats.CurrentExperience} / {(int)playerStats.ExperienceToNextLevel}"));
+
+        // Currency stats with color
+        statsDisplay.Add(CreateStatSeparator());
+        statsDisplay.Add(CreateColoredStatLabel($"Gold: {playerStats.GetCurrency(CurrencyType.Gold)}", new Color(1f, 0.84f, 0f)));      // Gold
+        statsDisplay.Add(CreateColoredStatLabel($"Silver: {playerStats.GetCurrency(CurrencyType.Silver)}", new Color(0.75f, 0.75f, 0.75f))); // Silver
+        statsDisplay.Add(CreateColoredStatLabel($"Copper: {playerStats.GetCurrency(CurrencyType.Copper)}", new Color(0.72f, 0.45f, 0.2f)));  // Copper
     }
 
     /// <summary>
@@ -460,5 +479,18 @@ public class InventoryUIController : MonoBehaviour
         return separator;
     }
 
+    private Label CreateColoredStatLabel(string text, Color color)
+    {
+        var label = new Label(text);
+        label.AddToClassList("stat-label");
+        label.style.color = new StyleColor(color);
+        return label;
+    }
+
     #endregion
+
+    private void OnCurrencyChanged(CurrencyType type, int amount)
+    {
+        RefreshStats();
+    }
 }

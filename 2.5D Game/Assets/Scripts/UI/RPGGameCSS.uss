@@ -27,7 +27,7 @@
 .inventory-title, .loot-title {
     color: #FFD700;
     font-size: 22px;
-    font-weight: bold;
+    -unity-font-style: bold;
 }
 
 .close-button {
@@ -36,7 +36,7 @@
     background-color: #8B0000;
     color: #FFD700;
     font-size: 16px;
-    font-weight: bold;
+    -unity-font-style: bold;
     border-width: 0px;
 }
 
@@ -52,7 +52,7 @@
     color: #C0C0C0;
     font-size: 16px;
     margin-bottom: 10px;
-    text-align: center;
+    -unity-text-align: middle-center;
 }
 
 .character-pane {
@@ -234,23 +234,53 @@
 
 .loot-item .item-name {
     font-size: 14px;
-    font-weight: bold;
-    flex-grow: 1; /* This makes the name take up available space, pushing the count to the right */
+    -unity-font-style: bold;
+    flex-grow: 1;
 }
 
 .loot-item .item-count {
     color: #C0C0C0;
     font-size: 12px;
-    font-weight: bold;
+    -unity-font-style: bold;
 }
 
 /* Apply border color to loot items based on rarity */
-.loot-item.rarity-common { border-left-color: #9D9D9D; }
-.loot-item.rarity-uncommon { border-left-color: #1EFF00; }
-.loot-item.rarity-rare { border-left-color: #0070DD; }
-.loot-item.rarity-epic { border-left-color: #A335EE; }
-.loot-item.rarity-legendary { border-left-color: #FF8000; }
+.loot-item.rarity-common {
+    border-left-width: 4px;
+    border-left-color: #9D9D9D;
+    
+    background-color: #222;
+}
+.loot-item.rarity-uncommon {
+    border-left-width: 4px;
+    border-left-color: #1EFF00;
+    
+    background-color: #232f23;
+}
+.loot-item.rarity-rare {
+    border-left-width: 4px;
+    border-left-color: #0070DD;
+    
+    background-color: #1a2233;
+}
+.loot-item.rarity-epic {
+    border-left-width: 4px;
+    border-left-color: #A335EE;
+    
+    background-color: #2a1a33;
+}
+.loot-item.rarity-legendary {
+    border-left-width: 4px;
+    border-left-color: #FF8000;
+    
+    background-color: #332a1a;
+}
 
+.item-name.rarity-common { color: #9D9D9D; }
+.item-name.rarity-uncommon { color: #1EFF00; }
+.item-name.rarity-rare { color: #0070DD; }
+.item-name.rarity-epic { color: #A335EE; }
+.item-name.rarity-legendary { color: #FF8000; }
 
 .button-container {
     flex-direction: row;
@@ -266,10 +296,83 @@
     color: #FFFFFF;
     padding: 12px 25px;
     font-size: 16px;
-    font-weight: bold;
+    -unity-font-style: bold;
     border-width: 0;
 }
 
 .loot-all-button:hover {
     background-color: #32CD32;
+}
+
+/* Currency Section Styles */
+.currency-section {
+    background-color: #1A1A1A;
+    border-width: 2px;
+    border-color: #444;
+    border-radius: 5px;
+    padding: 10px;
+    margin: 10px 0;
+}
+
+.currency-title {
+    color: #FFD700;
+    font-size: 16px;
+    -unity-font-style: bold;
+    margin-bottom: 8px;
+    -unity-text-align: middle-center;
+}
+
+.currency-display {
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: center;
+}
+
+.currency-label {
+    font-size: 14px;
+    -unity-font-style: bold;
+    padding: 5px 10px;
+    border-radius: 3px;
+    background-color: #2A2A2A;
+}
+
+.gold-currency {
+    color: #FFD700;
+    border-color: #FFD700;
+    border-width: 1px;
+}
+
+.silver-currency {
+    color: #C0C0C0;
+    border-color: #C0C0C0;
+    border-width: 1px;
+}
+
+.copper-currency {
+    color: #CD7F32;
+    border-color: #CD7F32;
+    border-width: 1px;
+}
+
+.item-name.currency-item { color: #FFD700; }
+
+/* This will color the border or background of the entire item slot */
+.loot-item.rarity-common { border-left: 4px solid #9D9D9D; }
+.loot-item.rarity-uncommon { border-left: 4px solid #1EFF00; }
+.loot-item.rarity-rare { border-left: 4px solid #0070DD; }
+.loot-item.rarity-epic { border-left: 4px solid #A335EE; }
+.loot-item.rarity-legendary { border-left: 4px solid #FF8000; }
+
+/* Optional: background color for extra emphasis */
+.loot-item.rarity-common { background-color: #222; }
+.loot-item.rarity-uncommon { background-color: #232f23; }
+.loot-item.rarity-rare { background-color: #1a2233; }
+.loot-item.rarity-epic { background-color: #2a1a33; }
+.loot-item.rarity-legendary { background-color: #332a1a; }
+
+.loot-item.rarity-epic {
+    /* box-shadow: 0 0 8px #A335EE;  <-- Not supported, so commented out */
+}
+.loot-item.rarity-legendary {
+    /* box-shadow: 0 0 12px #FF8000;  <-- Not supported, so commented out */
 }

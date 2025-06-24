@@ -9,7 +9,7 @@ public class PlayerInteraction : MonoBehaviour
     [Header("Component References")]
     [SerializeField] private PlayerInventory playerInventory;
     [SerializeField] private LootUIController lootUIController;
-
+    [SerializeField] private PlayerStats playerStats;
     // Interaction State
     private InteractableBag currentLootBag;
 
@@ -118,7 +118,7 @@ public class PlayerInteraction : MonoBehaviour
     /// </summary>
     private void PerformLootInteraction()
     {
-        lootUIController.ShowLoot(currentLootBag.lootbag, playerInventory, currentLootBag);
+        lootUIController.ShowLoot(currentLootBag.lootbag, playerInventory, playerStats, currentLootBag);
     }
 
     #endregion

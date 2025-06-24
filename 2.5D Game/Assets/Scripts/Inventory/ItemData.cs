@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 /// <summary>
 /// ScriptableObject that defines the properties and stats of an item in the game.
@@ -19,7 +20,7 @@ public class ItemData : ScriptableObject
     public int count = 1;
     public int maxCount = 1;
     public ItemType itemType;
-    public bool isStackable => itemType == ItemType.Consumable;
+    public bool isStackable => itemType == ItemType.Consumable || itemType == ItemType.Currency;
     public bool isEquippable => itemType == ItemType.Weapon || itemType == ItemType.Armor;
 
     [Header("Item Subtypes")]
@@ -27,6 +28,8 @@ public class ItemData : ScriptableObject
     public ArmorSubType armorSubType;
     public ConsumableSubType consumableSubType;
     public QuestSubType questSubType;
+    public CurrencySubType currencySubType;
+    public CraftingMaterialSubType craftingMaterialSubType;
 
     [Header("Weapon Properties")]
     public WeaponType weaponType;
@@ -41,13 +44,19 @@ public class ItemData : ScriptableObject
     public int weaponCritChance;
     public int weaponCritDamage;
 
-    [Header("Armor Stats")]
-    public int armor;
-    public int health;
-    public int mana;
-    public int stamina;
-    public int armorCritChance;
-    public int armorCritDamage;
+    [Header("Defense & Armor Stats")]
+    public int armorRating;
+    public int defenseRating;
+    public int magicDefenseRating;
+    public int staminaRating;
+    public int healthRating;
+    public int manaRating;
+
+    [Header(" Offense & Armor Stats")]
+    public int damageBonus;
+    public int critChanceBonus;
+    public int critDamageBonus;
+    public int attackSpeedBonus;
 
     [Header("Consumable Stats")]
     public int healthRestore;
@@ -65,4 +74,16 @@ public class ItemData : ScriptableObject
     public int questReward;
     public int questRewardMax;
     public int questRewardMin;
+
+    [Header("Currency Stats")]
+    public CurrencyType currencyType;
+    public int currencyValue = 1;
+    public int currencyMinValue = 1;
+    public int currencyMaxValue = 1;
+
+    [Header("Crafting Material Properties")]
+    public CraftingMaterialTier craftingMaterialTier; // 1 = basic, 2 = advanced, 3 = expert, 4 = master, 5 = Unique
+    public int craftingMaterialValue = 1;
+    public int craftingMaterialMinValue = 1;
+    public int craftingMaterialMaxValue = 1;
 }

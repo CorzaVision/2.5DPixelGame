@@ -244,4 +244,95 @@ public class PlayerInventory : MonoBehaviour
     }
 
     #endregion
+
+    #region Sorting & Organization
+
+    public enum SortingType
+    {
+        Name,
+        Type,
+        Rarity,
+        Level,
+        Amount,
+        Value,
+    }
+    /// <summary>
+    /// Sorts the inventory items based on the sorting type.
+    /// </summary>
+    /// <param name="sortingType">The sorting type to use.</param>
+    public void SortInventory(SortingType sortingType)
+    {
+        switch (sortingType)
+        {
+            case SortingType.Name: // Sort by item name
+                items.Sort((a, b) => string.Compare(a.itemData.itemName, b.itemData.itemName, StringComparison.OrdinalIgnoreCase));
+                break;
+            case SortingType.Type: // Sort by item type
+                items.Sort((a, b) => string.Compare(a.itemData.itemType.ToString(), b.itemData.itemType.ToString(), StringComparison.OrdinalIgnoreCase));
+                break;
+            case SortingType.Rarity: // Sort by item rarity
+                items.Sort((a, b) => string.Compare(a.itemData.itemRarity.ToString(), b.itemData.itemRarity.ToString(), StringComparison.OrdinalIgnoreCase));
+                break;
+            case SortingType.Level: // Sort by item level
+                items.Sort((a, b) => a.itemData.itemLevel.CompareTo(b.itemData.itemLevel));
+                break;
+            case SortingType.Amount: // Sort by item amount
+                items.Sort((a, b) => a.count.CompareTo(b.count));
+                break;
+            case SortingType.Value: // Sort by item value
+                items.Sort((a, b) => CalculateItemValue(a).CompareTo(CalculateItemValue(b)));
+                break;
+            default:
+                Debug.LogError($"Invalid sorting type: {sortingType}");
+                break;
+        }
+    }
+
+    /// <summary>
+    /// Calculates the value of an item for sorting purposes.
+    /// </summary>
+    /// <param name="item">The item to calculate the value of.</param>
+    /// <returns>The value of the item.</returns>
+    private int CalculateItemValue(ItemData item)
+    {
+        switch (item.itemData.itemType)
+        {
+            case ItemType.CraftingMaterial:
+                return item.itemData.craftingMaterialValue * item.count;
+            case ItemType.Weapon:
+                return item.itemData.GetWeaponValue();
+            case ItemType.Armor:
+                return item.itemData.GetArmorValue();
+            case ItemType.Consumable:
+                return item.itemData.GetConsumableValue();
+            default:
+                return item.itemData.itemLevel * 100 + (int)item.itemData.itemRarity;
+        }
+    }
+
+    public int GetWeaponValue()
+    {
+     int statValue = damage * 10 + weaponCritDamage +  weaponCritChance *5;
+     int RarityMultiplier = GetRarityMultiplier(item.itemData.itemRarity);
+     return statValue * RarityMultiplier;
+    }
+
+    public int GetArmorValue()
+    {
+        int primaryValue = armorRating *5 + healthRating * 3;
+        int secondaryValue = defenseRating * 2 + magicDefenseRating * 2;
+        int totalValue = primaryValue + secondaryValue;
+        int RarityMultiplier = GetRarityMultiplier(item.itemData.itemRarity);
+        return totalValue * RarityMultiplier;
+    }
+
+    public int GetConsumableValue()
+    {
+        int baseValue = healthRestore * 5 + manaRestore * 5 + staminaRestore * 5;
+        int potionBonus = potionCount > 1 ? potionCount * 10 : 0;
+        return (baseValue + potionBonus)
+    }
+
+
+    #endregion
 }

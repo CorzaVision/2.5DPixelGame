@@ -1,0 +1,58 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fd06d0bbb22a83b4596916f6d31030b9, type: 3}
+  m_Name: Gold Coin
+  m_EditorClassIdentifier: 
+  itemID: 3
+  itemName: Bag of Gold Coins
+  itemDescription: Bag of Gold Coins
+  icon: {fileID: 2800000, guid: 42ec894b7800bed44800d12752d65b0f, type: 3}
+  itemLevel: 0
+  itemRarity: 3
+  count: 1
+  maxCount: 1
+  itemType: 4
+  weaponSubType: 0
+  armorSubType: 0
+  consumableSubType: 0
+  questSubType: 0
+  currencySubType: 0
+  weaponType: 0
+  weaponHand: 0
+  weaponWeight: 0
+  armorWeight: 0
+  damage: 0
+  weaponCritChance: 0
+  weaponCritDamage: 0
+  armor: 0
+  health: 0
+  mana: 0
+  stamina: 0
+  armorCritChance: 0
+  armorCritDamage: 0
+  healthRestore: 0
+  manaRestore: 0
+  staminaRestore: 0
+  critChanceRestore: 0
+  potionType: 0
+  potionCount: 0
+  potionMaxCount: 0
+  questID: 0
+  questProgress: 0
+  questProgressMax: 0
+  questReward: 0
+  questRewardMax: 0
+  questRewardMin: 0
+  currencyType: 2
+  currencyValue: 0
+  currencyMinValue: 1
+  currencyMaxValue: 10

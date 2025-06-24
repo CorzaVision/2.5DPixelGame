@@ -476,6 +476,10 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8052190135160547761, guid: eb03d4c1aea85b2439622246aee6e058, type: 3}
+      propertyPath: playerStats
+      value: 
+      objectReference: {fileID: 1032053165}
+    - target: {fileID: 8052190135160547761, guid: eb03d4c1aea85b2439622246aee6e058, type: 3}
       propertyPath: lootUIController
       value: 
       objectReference: {fileID: 2671022504654918360}
@@ -1661,6 +1665,46 @@ PrefabInstance:
     - target: {fileID: 5279192586683204516, guid: 8107a89713cc5264da7b0bdb9751f1a5, type: 3}
       propertyPath: m_Name
       value: Lootbag
+      objectReference: {fileID: 0}
+    - target: {fileID: 8035265434432781536, guid: 8107a89713cc5264da7b0bdb9751f1a5, type: 3}
+      propertyPath: lootbag.items.Array.size
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 8035265434432781536, guid: 8107a89713cc5264da7b0bdb9751f1a5, type: 3}
+      propertyPath: lootbag.items.Array.data[2].count
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8035265434432781536, guid: 8107a89713cc5264da7b0bdb9751f1a5, type: 3}
+      propertyPath: lootbag.items.Array.data[3].count
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8035265434432781536, guid: 8107a89713cc5264da7b0bdb9751f1a5, type: 3}
+      propertyPath: lootbag.items.Array.data[4].count
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8035265434432781536, guid: 8107a89713cc5264da7b0bdb9751f1a5, type: 3}
+      propertyPath: lootbag.items.Array.data[2].itemData
+      value: 
+      objectReference: {fileID: 11400000, guid: 2504983ff8f719944ab4e41619bee945, type: 2}
+    - target: {fileID: 8035265434432781536, guid: 8107a89713cc5264da7b0bdb9751f1a5, type: 3}
+      propertyPath: lootbag.items.Array.data[2].uniqueId
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 8035265434432781536, guid: 8107a89713cc5264da7b0bdb9751f1a5, type: 3}
+      propertyPath: lootbag.items.Array.data[3].itemData
+      value: 
+      objectReference: {fileID: 11400000, guid: f6252ba93d8d07a4e8aa504071416976, type: 2}
+    - target: {fileID: 8035265434432781536, guid: 8107a89713cc5264da7b0bdb9751f1a5, type: 3}
+      propertyPath: lootbag.items.Array.data[3].uniqueId
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 8035265434432781536, guid: 8107a89713cc5264da7b0bdb9751f1a5, type: 3}
+      propertyPath: lootbag.items.Array.data[4].itemData
+      value: 
+      objectReference: {fileID: 11400000, guid: ca4bafdf42f29ce408c793b7add68bdb, type: 2}
+    - target: {fileID: 8035265434432781536, guid: 8107a89713cc5264da7b0bdb9751f1a5, type: 3}
+      propertyPath: lootbag.items.Array.data[4].uniqueId
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 8614944956399622978, guid: 8107a89713cc5264da7b0bdb9751f1a5, type: 3}
       propertyPath: m_LocalPosition.x

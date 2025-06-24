@@ -28,7 +28,7 @@ public class LootUIController : MonoBehaviour
     private Bag currentBag;
     private PlayerInventory currentPlayerInventory;
     private InteractableBag currentBagScript;
-
+    private PlayerStats currentPlayerStats;
     #region Unity Lifecycle
 
     private void Awake()
@@ -99,8 +99,9 @@ public class LootUIController : MonoBehaviour
     /// </summary>
     /// <param name="bag">The bag containing loot items.</param>
     /// <param name="playerInventory">The player's inventory to add items to.</param>
+    /// <param name="playerStats">The player's stats to update.</param>
     /// <param name="bagScript">The interactable bag script for cleanup.</param>
-    public void ShowLoot(Bag bag, PlayerInventory playerInventory, InteractableBag bagScript)
+    public void ShowLoot(Bag bag, PlayerInventory playerInventory, PlayerStats playerStats, InteractableBag bagScript)
     {
         if (lootPanel == null)
         {
@@ -110,6 +111,7 @@ public class LootUIController : MonoBehaviour
         
         currentBag = bag;
         currentPlayerInventory = playerInventory;
+        currentPlayerStats = playerStats;
         currentBagScript = bagScript;
         lootPanel.style.display = DisplayStyle.Flex;
         RefreshLootList();
@@ -165,8 +167,26 @@ public class LootUIController : MonoBehaviour
         var icon = CreateItemIcon(item);
         itemElement.Add(icon);
 
+        // Build display name with value/effect
+        string displayName = item.itemData.itemName;
+
+        // Show value for currency
+        if (item.itemData.itemType == ItemType.Currency && item.itemData.currencyValue > 0)
+        {
+            displayName += $" (+{item.itemData.currencyValue})";
+        }
+        // Show effect for consumables (e.g., health restore)
+        else if (item.itemData.itemType == ItemType.Consumable)
+        {
+            if (item.itemData.healthRestore > 0)
+                displayName += $" (+{item.itemData.healthRestore} HP)";
+            else if (item.itemData.manaRestore > 0)
+                displayName += $" (+{item.itemData.manaRestore} MP)";
+            // Add more as needed for other effects
+        }
+
         // Add name label with rarity color
-        var nameLabel = new Label(item.itemData.itemName);
+        var nameLabel = new Label(displayName);
         nameLabel.AddToClassList("item-name");
         nameLabel.AddToClassList($"rarity-{item.itemData.itemRarity.ToString().ToLower()}");
         itemElement.Add(nameLabel);
@@ -174,7 +194,13 @@ public class LootUIController : MonoBehaviour
         // Add count label
         var countLabel = new Label($"x{item.count}");
         countLabel.AddToClassList("item-count");
+        countLabel.AddToClassList($"rarity-{item.itemData.itemRarity.ToString().ToLower()}");
         itemElement.Add(countLabel);
+
+        if (item.itemData.itemType == ItemType.Currency)
+        {
+            itemElement.AddToClassList("currency-item");
+        }
 
         // Add event handlers
         itemElement.RegisterCallback<PointerEnterEvent>(evt => ShowTooltip(evt, item));
@@ -212,9 +238,37 @@ public class LootUIController : MonoBehaviour
     /// <param name="item">The item to loot.</param>
     private void LootItem(ItemInstance item)
     {
-        currentPlayerInventory.AddItemInstance(item);
-        currentBag.items.Remove(item);
-        
+        Debug.Log($"Looting item: {item.itemData.itemName}, type: {item.itemData.itemType}");
+        if (item.itemData.itemType == ItemType.Currency)
+        {
+            Debug.Log("Currency item detected, attempting to add currency.");
+            int currencyAmount = item.itemData.currencyValue > 0
+                ? item.itemData.currencyValue
+                : UnityEngine.Random.Range(item.itemData.currencyMinValue, item.itemData.currencyMaxValue + 1);
+            int totalCurrency = currencyAmount * item.count;
+            if (currentPlayerStats != null)
+            {
+                Debug.Log("PlayerStats reference is valid, calling AddCurrency.");
+                currentPlayerStats.AddCurrency(item.itemData.currencyType, totalCurrency);
+            }
+            else
+            {
+                Debug.LogError("PlayerStats reference is missing in LootUIController!");
+            }
+
+            // Optionally: Play a sound or show a popup here
+            Debug.Log($"Collected {totalCurrency} {item.itemData.currencyType}");
+
+            // Remove the currency item from the loot bag (do not add to inventory)
+            currentBag.items.Remove(item);
+        }
+        else
+        {
+            // For all other items, add to inventory as usual
+            currentPlayerInventory.AddItemInstance(item);
+            currentBag.items.Remove(item);
+        }
+
         if (currentBag.items.Count == 0)
         {
             if (currentBagScript != null) 
@@ -236,16 +290,33 @@ public class LootUIController : MonoBehaviour
     {
         foreach (var item in new List<ItemInstance>(currentBag.items))
         {
-            currentPlayerInventory.AddItemInstance(item);
+            if (item.itemData.itemType == ItemType.Currency)
+            {
+                int currencyAmount = item.itemData.currencyValue > 0
+                    ? item.itemData.currencyValue
+                    : UnityEngine.Random.Range(item.itemData.currencyMinValue, item.itemData.currencyMaxValue + 1);
+                int totalCurrency = currencyAmount * item.count;
+                if (currentPlayerStats != null)
+                {
+                    currentPlayerStats.AddCurrency(item.itemData.currencyType, totalCurrency);
+                }
+                else
+                {
+                    Debug.LogError("PlayerStats reference is missing in LootUIController!");
+                }
+                Debug.Log($"Collected {totalCurrency} {item.itemData.currencyType}");
+            }
+            else
+            {
+                currentPlayerInventory.AddItemInstance(item);
+            }
         }
-        
         currentBag.items.Clear();
-        
+
         if (currentBagScript != null) 
         {
             currentBagScript.OnAllLooted();
         }
-        
         HideLoot();
     }
 
@@ -313,6 +384,10 @@ public class LootUIController : MonoBehaviour
         {
             AddConsumableStats(data);
         }
+        else if (data.itemType == ItemType.Currency)
+        {
+            AddCurrencyStats(data);
+        }
 
         // Add item level if applicable
         if (data.itemLevel > 0)
@@ -358,6 +433,17 @@ public class LootUIController : MonoBehaviour
         var healLabel = new Label($"Heals: {data.healthRestore}");
         healLabel.AddToClassList("tooltip-stat-label");
         tooltipStatsList.Add(healLabel);
+    }
+
+    /// <summary>
+    /// Adds currency-specific stats to the tooltip.
+    /// </summary>
+    /// <param name="data">The currency item data.</param>
+    private void AddCurrencyStats(ItemData data)
+    {
+        var currencyLabel = new Label($"Currency: {data.currencyType}");
+        currencyLabel.AddToClassList("tooltip-stat-label");
+        tooltipStatsList.Add(currencyLabel);
     }
 
     /// <summary>

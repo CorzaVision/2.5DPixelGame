@@ -120,6 +120,28 @@ public class ItemDataEditor : Editor
             EditorGUILayout.PropertyField(serializedObject.FindProperty("questRewardMin")); // Quest Reward Min
         }
 
+        if (itemType == ItemType.Currency)
+        {
+            EditorGUILayout.Space();
+            EditorGUILayout.LabelField("Currency Stats", EditorStyles.boldLabel);
+            EditorGUILayout.PropertyField(serializedObject.FindProperty("currencyType"), new GUIContent("Currency Type"));
+            EditorGUILayout.PropertyField(serializedObject.FindProperty("currencyValue"), new GUIContent("Fixed Value (if not random)"));
+            EditorGUILayout.PropertyField(serializedObject.FindProperty("currencyMinValue"), new GUIContent("Random Min Value"));
+            EditorGUILayout.PropertyField(serializedObject.FindProperty("currencyMaxValue"), new GUIContent("Random Max Value"));
+        }
+
+        if (itemType == ItemType.CraftingMaterial)
+        {
+            EditorGUILayout.Space();
+            EditorGUILayout.LabelField("Crafting Material Stats", EditorStyles.boldLabel);
+            EditorGUILayout.PropertyField(serializedObject.FindProperty("craftingMaterialSubType"), new GUIContent("Crafting Material Type"));
+            EditorGUILayout.PropertyField(serializedObject.FindProperty("craftingMaterialTier"), new GUIContent("Crafting Material Tier"));
+            EditorGUILayout.PropertyField(serializedObject.FindProperty("craftingMaterialValue"), new GUIContent("Fixed Value (if not random)"));
+            EditorGUILayout.PropertyField(serializedObject.FindProperty("craftingMaterialMinValue"), new GUIContent("Random Min Value (if random)"));
+            EditorGUILayout.PropertyField(serializedObject.FindProperty("craftingMaterialMaxValue"), new GUIContent("Random Max Value (if random)"));
+
+        }
+
         serializedObject.ApplyModifiedProperties();
     }
 }

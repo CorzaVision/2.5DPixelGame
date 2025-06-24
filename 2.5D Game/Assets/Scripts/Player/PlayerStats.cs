@@ -1,5 +1,6 @@
 using UnityEngine;
 using System;
+using System.Collections.Generic;
 
 /// <summary>
 /// Manages all player statistics including health, attack, defense, speed, leveling, and equipment.
@@ -27,8 +28,15 @@ public class PlayerStats : MonoBehaviour
     [SerializeField] private float attackCooldown = 1f;
     [SerializeField] private float speedToAttackCooldown = 0.5f;
 
+    [Header("Currency")]
+    [SerializeField] private int copper = 0;
+    [SerializeField] private int silver = 0;
+    [SerializeField] private int gold = 0;
+
     [Header("Debug")]
     [SerializeField] private bool showDebug = true;
+
+    private Dictionary<CurrencyType, int> currencyAmounts = new Dictionary<CurrencyType, int>();
 
     // Components
     private PlayerAttack playerAttack;
@@ -50,6 +58,9 @@ public class PlayerStats : MonoBehaviour
     public event Action<float> OnSpeedChanged;
     public event Action<float> OnCooldownChanged;
     public event Action OnDeath;
+    public event Action<CurrencyType, int> OnCurrencyGained;
+    public event Action<CurrencyType, int> OnCurrencySpent;
+    public event Action<CurrencyType, int> OnCurrencyChanged;
 
     // Public Properties
     public int CurrentLevel { get; private set; }
@@ -60,6 +71,15 @@ public class PlayerStats : MonoBehaviour
     public float CurrentDefense { get; private set; }
     public float CurrentSpeed { get; private set; }
     public float CurrentCooldown => CalculateAttackCooldown();
+    public int GetCurrency(CurrencyType currencyType)
+    {
+        return currencyAmounts.ContainsKey(currencyType) ? currencyAmounts[currencyType] : 0;
+    }
+
+    public bool HasCurrency(CurrencyType currencyType, int amount)
+    {
+        return GetCurrency(currencyType) >= amount;
+    }
 
     #region Unity Lifecycle 
 
@@ -118,6 +138,7 @@ public class PlayerStats : MonoBehaviour
         UpdateStats();
         ExperienceToNextLevel = baseHealth * experienceMultiplier;
         CurrentHealth = GetMaxHealth();
+        InitializeCurrency();
         OnHealthChanged?.Invoke(CurrentHealth);
     }
 
@@ -129,6 +150,19 @@ public class PlayerStats : MonoBehaviour
         if (showDebug)
         {
             Debug.Log($"Player stats initialized: Level {CurrentLevel}, Health {CurrentHealth}, Attack {CurrentAttack}, Defense {CurrentDefense}, Speed {CurrentSpeed}");
+        }
+    }
+
+    private void InitializeCurrency()
+    {
+        currencyAmounts[CurrencyType.Copper] = copper;
+        currencyAmounts[CurrencyType.Silver] = silver;
+        currencyAmounts[CurrencyType.Gold] = gold;
+        
+        // Notify UI of initial currency amounts
+        foreach (var currency in currencyAmounts)
+        {
+            OnCurrencyChanged?.Invoke(currency.Key, currency.Value);
         }
     }
 
@@ -258,6 +292,22 @@ public class PlayerStats : MonoBehaviour
     #region Item Usage
 
     /// <summary>
+    /// Uses an item, applying its effects based on item type.
+    /// </summary>
+    /// <param name="item">The item to use.</param>
+    public void UseItem(ItemInstance item)
+    {
+        if (item.itemData.itemType == ItemType.Consumable)
+        {
+            UseConsumable(item);
+        }
+        else if (item.itemData.itemType == ItemType.Currency)
+        {
+            UseCurrency(item);
+        }
+    }
+
+    /// <summary>
     /// Uses a consumable item, applying its effects.
     /// </summary>
     /// <param name="item">The consumable item to use.</param>
@@ -276,6 +326,29 @@ public class PlayerStats : MonoBehaviour
             else
             {
                 Debug.Log("No health to restore as it is already at max or no consumable left");
+            }
+        }
+    }
+
+    /// <summary>
+    /// Uses a currency item, adding it to the player's currency.
+    /// </summary>
+    /// <param name="item">The currency item to use.</param>
+    private void UseCurrency(ItemInstance item)
+    {
+        if (item.count > 0)
+        {
+            // Use currencyValue if it's set, otherwise use random range
+            int currencyAmount = item.itemData.currencyValue > 0
+                ? item.itemData.currencyValue
+                : UnityEngine.Random.Range(item.itemData.currencyMinValue, item.itemData.currencyMaxValue + 1);
+            
+            AddCurrency(item.itemData.currencyType, currencyAmount * item.count);
+            item.count = 0; // Remove the item after use
+            
+            if (showDebug)
+            {
+                Debug.Log($"Collected {currencyAmount * item.count} {item.itemData.currencyType}");
             }
         }
     }
@@ -395,6 +468,87 @@ public class PlayerStats : MonoBehaviour
 
     #endregion
 
+
+    #region Currency Management
+
+
+    public void AddCurrency(CurrencyType currencyType, int amount)
+    {
+        if (amount <= 0) return;
+
+        if (!currencyAmounts.ContainsKey(currencyType))
+        {
+            currencyAmounts[currencyType] = 0;
+        }
+
+        currencyAmounts[currencyType] += amount;
+
+        ConvertCurrency(currencyType);
+        OnCurrencyGained?.Invoke(currencyType, amount);
+        OnCurrencyChanged?.Invoke(currencyType, currencyAmounts[currencyType]);
+
+        if (showDebug)
+        {
+            Debug.Log($"Player gained {amount} {currencyType} total: {currencyAmounts[currencyType]}");
+        }
+    }
+
+    public bool SpendCurrency(CurrencyType currencyType, int amount)
+    {
+        if (amount <= 0) return false;
+
+        if (!HasCurrency(currencyType, amount)) return false;
+
+        currencyAmounts[currencyType] -= amount;
+        OnCurrencySpent?.Invoke(currencyType, amount);
+        OnCurrencyChanged?.Invoke(currencyType, currencyAmounts[currencyType]);
+
+        if (showDebug)
+        {
+            Debug.Log($"Player spent {amount} {currencyType} total: {currencyAmounts[currencyType]}");
+        }
+
+        return true;
+    }
+
+    /// <summary>
+    /// Converts excess currency to higher denominations (auto-conversion).
+    /// </summary>
+    /// <param name="currencyType">The currency type to check for conversion.</param>
+    private void ConvertCurrency(CurrencyType currencyType)
+    {
+        // Convert Copper to Silver (100 Copper = 1 Silver)
+        if (currencyType == CurrencyType.Copper && currencyAmounts[CurrencyType.Copper] >= 100)
+        {
+            int silverToAdd = currencyAmounts[CurrencyType.Copper] / 100;
+            currencyAmounts[CurrencyType.Copper] %= 100;
+            currencyAmounts[CurrencyType.Silver] += silverToAdd;
+            
+            // Recursively convert Silver to Gold
+            ConvertCurrency(CurrencyType.Silver);
+            
+            if (showDebug)
+            {
+                Debug.Log($"Converted {silverToAdd} Silver from Copper");
+            }
+        }
+        
+        // Convert Silver to Gold (100 Silver = 1 Gold)
+        if (currencyType == CurrencyType.Silver && currencyAmounts[CurrencyType.Silver] >= 100)
+        {
+            int goldToAdd = currencyAmounts[CurrencyType.Silver] / 100;
+            currencyAmounts[CurrencyType.Silver] %= 100;
+            currencyAmounts[CurrencyType.Gold] += goldToAdd;
+            
+            if (showDebug)
+            {
+                Debug.Log($"Converted {goldToAdd} Gold from Silver");
+            }
+        }
+    }
+
+    #endregion
+
     #region Debug
 
     /// <summary>
@@ -404,13 +558,17 @@ public class PlayerStats : MonoBehaviour
     {
         if (!showDebug) return;
         
-        GUI.Box(new Rect(10, 10, 200, 220), "Player Stats");
+        GUI.Box(new Rect(10, 10, 200, 280), "Player Stats");
         GUI.Label(new Rect(20, 30, 180, 20), $"Level: {CurrentLevel}");
         GUI.Label(new Rect(20, 50, 180, 20), $"Experience: {CurrentExperience}/{ExperienceToNextLevel}");
         GUI.Label(new Rect(20, 70, 180, 20), $"Health: {CurrentHealth}/{GetMaxHealth()}");
         GUI.Label(new Rect(20, 90, 180, 20), $"Attack: {CurrentAttack}");
         GUI.Label(new Rect(20, 110, 180, 20), $"Defense: {CurrentDefense}");
         GUI.Label(new Rect(20, 130, 180, 20), $"Speed: {CurrentSpeed}");
+        
+        GUI.Label(new Rect(20, 160, 180, 20), $"Gold: {GetCurrency(CurrencyType.Gold)}");
+        GUI.Label(new Rect(20, 180, 180, 20), $"Silver: {GetCurrency(CurrencyType.Silver)}");
+        GUI.Label(new Rect(20, 200, 180, 20), $"Copper: {GetCurrency(CurrencyType.Copper)}");
     }
 
     #endregion
