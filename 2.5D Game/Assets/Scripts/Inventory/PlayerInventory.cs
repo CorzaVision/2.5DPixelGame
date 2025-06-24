@@ -20,11 +20,13 @@ public class PlayerInventory : MonoBehaviour
     [Tooltip("Reference to the inventory UI controller")]
     public InventoryUIController inventoryUIController;
 
-    [Header("Bag System")]
-    [Tooltip("List of bags the player owns")]
-    public List<Bag> bags = new List<Bag>();
-    [Tooltip("Maximum number of bags the player can carry")]
-    public int maxBags = 2;
+    [Header("Bag Slots")]
+    [Tooltip("Maximum number of bag slots the player can carry")]
+    public int maxBagSlots = 4;
+    public List<Bag> bagSlots;
+
+    [Header("Base Inventory")]
+    public int baseInventorySlots = 10;
 
     #endregion
 
@@ -152,23 +154,63 @@ public class PlayerInventory : MonoBehaviour
 
     #endregion
 
-    #region Bag Management
+    #region Bag Equipping
 
     /// <summary>
-    /// Adds a new bag to the player's inventory.
+    /// Equips a bag item into a bag slot.
     /// </summary>
-    /// <param name="bagData">The bag data to create the bag from.</param>
-    public void AddBag(BagData bagData)
+    /// <param name="bagItem">The bag item to equip.</param>
+    /// <param name="slotIndex">The index of the bag slot to equip the bag into.</param>
+    /// <returns>True if the bag was successfully equipped, false otherwise.</returns>
+    public bool EquipBagItem(ItemInstance bagItem)
     {
-        if (bags.Count >= maxBags)
-        {
-            Debug.LogWarning($"Cannot add bag: Maximum bag limit ({maxBags}) reached.");
-            return;
-        }
+        if (bagItem.itemData.itemType != ItemType.Bag || bagItem.itemData.bagDataReference == null)
+            return false;
 
-        Bag newBag = new Bag { bagData = bagData };
-        bags.Add(newBag);
-        Debug.Log($"Added bag: {bagData.bagName}");
+        for (int i = 0; i < bagSlots.Count; i++)
+        {
+            if (bagSlots[i] == null)
+            {
+                var emptySlots = new List<ItemInstance>(new ItemInstance[bagItem.itemData.bagDataReference.slotCount]);
+                bagSlots[i] = new Bag(emptySlots);
+                bagSlots[i].bagData = bagItem.itemData.bagDataReference;
+                bagSlots[i].bagItem = bagItem;
+                
+                Debug.Log($"Equipped bag: {bagItem.itemData.name} with icon: {(bagItem.itemData.icon != null ? "EXISTS" : "NULL")}");
+                
+                items.Remove(bagItem);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /// <summary>
+    /// Initializes the bag slots list.
+    /// </summary>
+    private void Awake()
+    {
+        bagSlots = new List<Bag>(new Bag[maxBagSlots]);
+    }
+
+    /// <summary>
+    /// Unequips a bag item from a bag slot.
+    /// </summary>
+    /// <param name="slotIndex">The index of the bag slot to unequip the bag from.</param>
+    /// <returns>True if the bag was successfully unequipped, false otherwise.</returns>
+    public bool UnequipBag(int slotIndex)
+    {
+        if (slotIndex < 0 || slotIndex >= bagSlots.Count || bagSlots[slotIndex] == null)
+            return false;
+
+        var bag = bagSlots[slotIndex];
+        if (bag.bagItem != null)
+        {
+            items.Add(bag.bagItem); // Return bag item to inventory
+        }
+        
+        bagSlots[slotIndex] = null; // Clear the slot
+        return true;
     }
 
     #endregion
@@ -233,7 +275,7 @@ public class PlayerInventory : MonoBehaviour
     /// <returns>The count of bags in the inventory.</returns>
     public int GetBagCount()
     {
-        return bags.Count;
+        return bagSlots.Count;
     }
 
     /// <summary>
@@ -242,12 +284,13 @@ public class PlayerInventory : MonoBehaviour
     /// <returns>True if more bags can be added, false otherwise.</returns>
     public bool CanAddBag()
     {
-        return bags.Count < maxBags;
+        return bagSlots.Count < maxBagSlots;
     }
 
     #endregion
 
     #region Sorting & Organization
+    
 
     public enum SortType
     {
@@ -354,4 +397,28 @@ public class PlayerInventory : MonoBehaviour
     }
 
     #endregion
+
+    public List<ItemInstance> GetAllSlots()
+    {
+        List<ItemInstance> allSlots = new List<ItemInstance>();
+
+        // Add base inventory slots (filled or empty)
+        for (int i = 0; i < baseInventorySlots; i++)
+        {
+            if (i < items.Count)
+                allSlots.Add(items[i]);
+            else
+                allSlots.Add(null);
+        }
+
+        // Add all bag slots
+        foreach (var bag in bagSlots)
+        {
+            if (bag != null)
+                allSlots.AddRange(bag.slots);
+        }
+        return allSlots;
+    }
 }
+
+

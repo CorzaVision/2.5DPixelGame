@@ -9,6 +9,8 @@
             <ui:VisualElement name="character-pane" class="character-pane">
                 <ui:Label text="Equipment" class="pane-title" />
                 <ui:VisualElement name="equipment-grid" class="equipment-grid" />
+                <ui:Label text="Bag Slots" class="pane-title" style="margin-top: 20px;" />
+                <ui:VisualElement name="bag-slots-grid" class="bag-slots-grid" />
                 <ui:Label text="Character Stats" class="pane-title" style="margin-top: 20px;" />
                 <ui:VisualElement name="stats-display" class="stats-display" />
             </ui:VisualElement>

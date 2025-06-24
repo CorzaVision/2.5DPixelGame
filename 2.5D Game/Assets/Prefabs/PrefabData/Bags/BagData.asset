@@ -14,5 +14,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   bagName: Chest
   bagID: 3
-  slotCount: 20
-  bagType: 1
+  slotCount: 10
+  bagType: 0

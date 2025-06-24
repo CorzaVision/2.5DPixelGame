@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+using System.Linq;
 
 /// <summary>
 /// Represents a bag that can hold items, either as a player's bag or a loot container.
@@ -10,36 +11,19 @@ public class Bag
 {
     [Header("Bag Data")]
     public BagData bagData;
-    public List<ItemInstance> items = new List<ItemInstance>();
+    public List<ItemInstance> slots;
+    public ItemInstance bagItem;
 
-    #region Constructors
-
-    /// <summary>
-    /// Default constructor for Unity serialization.
-    /// </summary>
-    public Bag() { }
-
-    /// <summary>
-    /// Constructor that creates a bag with specified bag data.
-    /// </summary>
-    /// <param name="data">The bag data to associate with this bag.</param>
-    public Bag(BagData data)
-    {
-        bagData = data;
-        items = new List<ItemInstance>();
-    }
-
-    /// <summary>
-    /// Constructor that creates a bag with a list of items (typically for loot bags).
-    /// </summary>
-    /// <param name="items">The items to add to the bag.</param>
     public Bag(List<ItemInstance> items)
     {
         bagData = null;
-        this.items = items;
+        slots = new List<ItemInstance>(new ItemInstance[items.Count]);
+        for (int i = 0; i < items.Count; i++)
+        {
+            slots[i] = items[i];
+        }
     }
 
-    #endregion
 
     #region Item Management
 
@@ -47,18 +31,39 @@ public class Bag
     /// Adds an item to the bag.
     /// </summary>
     /// <param name="item">The item instance to add.</param>
-    public void AddItem(ItemInstance item)
+    public bool AddItem(ItemInstance item)
     {
-        items.Add(item);
+        for (int i = 0; i < slots.Count; i++)
+        {
+            if (slots[i] == null)
+            {
+                slots[i] = item;
+                return true;
+            }
+        }
+        return false; // Bag is full
     }
 
     /// <summary>
     /// Removes an item from the bag.
     /// </summary>
-    /// <param name="item">The item instance to remove.</param>
-    public void RemoveItem(ItemInstance item)
+    /// <param name="slotIndex">The index of the item to remove.</param>
+    public void RemoveItem(int slotIndex)
     {
-        items.Remove(item);
+        if (slotIndex >= 0 && slotIndex < slots.Count)
+            slots[slotIndex] = null;
+    }
+
+    /// <summary>
+    /// Gets all items in the bag.
+    /// </summary>
+    /// <returns>A list of all items in the bag.</returns>
+    public List<ItemInstance> GetAllItems()
+    {
+        List<ItemInstance> items = new List<ItemInstance>();
+        foreach (var slot in slots)
+            if (slot != null) items.Add(slot);
+        return items;
     }
 
     #endregion
@@ -71,7 +76,7 @@ public class Bag
     /// <returns>The count of items in the bag.</returns>
     public int GetItemCount()
     {
-        return items.Count;
+        return slots.Count;
     }
 
     /// <summary>
@@ -80,7 +85,7 @@ public class Bag
     /// <returns>True if the bag has no items, false otherwise.</returns>
     public bool IsEmpty()
     {
-        return items.Count == 0;
+        return slots.All(item => item == null);
     }
 
     /// <summary>
@@ -88,7 +93,10 @@ public class Bag
     /// </summary>
     public void Clear()
     {
-        items.Clear();
+        for (int i = 0; i < slots.Count; i++)
+        {
+            slots[i] = null;
+        }
     }
 
     #endregion

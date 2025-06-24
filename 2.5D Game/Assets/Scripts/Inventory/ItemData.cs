@@ -21,7 +21,7 @@ public class ItemData : ScriptableObject
     public int maxCount = 1;
     public ItemType itemType;
     public bool isStackable => itemType == ItemType.Consumable || itemType == ItemType.Currency;
-    public bool isEquippable => itemType == ItemType.Weapon || itemType == ItemType.Armor;
+    public bool isEquippable => itemType == ItemType.Weapon || itemType == ItemType.Armor || itemType == ItemType.Bag;
 
     [Header("Item Subtypes")]
     public WeaponSubType weaponSubType;
@@ -51,6 +51,7 @@ public class ItemData : ScriptableObject
     public int staminaRating;
     public int healthRating;
     public int manaRating;
+    
 
     [Header(" Offense & Armor Stats")]
     public int damageBonus;
@@ -80,6 +81,10 @@ public class ItemData : ScriptableObject
     public int currencyValue = 1;
     public int currencyMinValue = 1;
     public int currencyMaxValue = 1;
+
+    [Header("Bag Properties")]
+    public bool isBag = false;
+    public BagData bagDataReference;
 
     [Header("Crafting Material Properties")]
     public CraftingMaterialTier craftingMaterialTier; // 1 = basic, 2 = advanced, 3 = expert, 4 = master, 5 = Unique

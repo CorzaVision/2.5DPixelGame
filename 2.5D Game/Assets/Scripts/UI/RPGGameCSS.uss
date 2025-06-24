@@ -448,3 +448,72 @@
 .sort-button:active {
     background-color: rgba(20, 20, 20, 0.8);
 }
+
+.bag-slots-grid {
+    flex-direction: row;
+    flex-wrap: wrap;
+    margin-top: 8px;
+    margin-bottom: 12px;
+    min-height: 60px;
+    background-color: #181818;
+    border-radius: 5px;
+    padding: 8px;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 8px;
+}
+
+.bag-slot {
+    width: 48px;
+    height: 48px;
+    background-color: #222;
+    border-width: 1px;
+    border-color: #555;
+    border-radius: 4px;
+    justify-content: center;
+    align-items: center;
+    margin: 2px;
+}
+
+.bag-slot.equipped {
+    border-color: #FFD700;
+}
+
+.bag-popup {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    translate: -50% -50%;
+    min-width: 300px;
+    min-height: 200px;
+    background-color: #222;
+    border-width: 2px;
+    border-color: #FFD700;
+    border-radius: 8px;
+    padding: 20px;
+    z-index: 100;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+.bag-popup-title {
+    color: #FFD700;
+    font-size: 18px;
+    margin-bottom: 12px;
+}
+
+.bag-popup-slots {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.bag-icon {
+    width: 32px;
+    height: 32px;
+    background-size: cover;
+    background-repeat: no-repeat;
+    margin: 2px;
+}

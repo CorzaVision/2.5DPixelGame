@@ -38,6 +38,11 @@ public class InventoryUIController : MonoBehaviour
     // Data
     private PlayerInventory currentPlayerInventory;
 
+    private VisualElement bagSlotsGrid;
+
+    private ItemInstance draggingItem = null;
+    private VisualElement draggingGhost = null;
+
     #region Unity Lifecycle
 
     private void Awake()
@@ -95,6 +100,8 @@ public class InventoryUIController : MonoBehaviour
         sortNameButton = root.Q<Button>("sort-name");
         sortValueButton = root.Q<Button>("sort-value");
         autoStackButton = root.Q<Button>("auto-stack");
+
+        bagSlotsGrid = root.Q<VisualElement>("bag-slots-grid");
     }
 
     /// <summary>
@@ -165,6 +172,7 @@ public class InventoryUIController : MonoBehaviour
 
         RefreshInventorySlots();
         RefreshEquipmentSlots();
+        RefreshBagSlots();
         RefreshStats();
     }
 
@@ -178,11 +186,11 @@ public class InventoryUIController : MonoBehaviour
     private void RefreshInventorySlots()
     {
         inventoryGrid.Clear();
-        
-        foreach (var item in currentPlayerInventory.items)
+        var allSlots = currentPlayerInventory.GetAllSlots();
+        foreach (var slot in allSlots)
         {
-            var slot = CreateInventorySlot(item);
-            inventoryGrid.Add(slot);
+            var slotElement = CreateInventorySlot(slot);
+            inventoryGrid.Add(slotElement);
         }
     }
 
@@ -196,21 +204,38 @@ public class InventoryUIController : MonoBehaviour
         var slot = new VisualElement();
         slot.AddToClassList("inventory-slot");
         
-        // Add event handlers
-        slot.RegisterCallback<PointerEnterEvent>(evt => ShowTooltip(evt, item));
-        slot.RegisterCallback<PointerLeaveEvent>(evt => HideTooltip());
-        slot.RegisterCallback<ClickEvent>(evt => OnItemClicked(item));
-        
-        // Add icon
-        var icon = CreateItemIcon(item);
-        slot.Add(icon);
-        
-        // Add stack count for stackable items
-        if (item.itemData.isStackable && item.count > 1)
+        if (item != null)
         {
-            var countLabel = new Label(item.count.ToString());
-            countLabel.AddToClassList("stack-count-label");
-            slot.Add(countLabel);
+            // Add event handlers
+            slot.RegisterCallback<PointerEnterEvent>(evt => ShowTooltip(evt, item));
+            slot.RegisterCallback<PointerLeaveEvent>(evt => HideTooltip());
+            slot.RegisterCallback<ClickEvent>(evt => OnItemClicked(item));
+            slot.RegisterCallback<PointerDownEvent>(evt => {
+                if (item != null)
+                {
+                    StartDragItem(item, slot);
+                }
+            });
+            
+            // Add icon
+            var icon = CreateItemIcon(item);
+            slot.Add(icon);
+            
+            // Add stack count for stackable items
+            if (item.itemData.isStackable && item.count > 1)
+            {
+                var countLabel = new Label(item.count.ToString());
+                countLabel.AddToClassList("stack-count-label");
+                slot.Add(countLabel);
+            }
+        }
+        else
+        {
+            // Show empty slot (e.g., add a border, grey box, or "Empty" label)
+            slot.AddToClassList("empty");
+            var emptyLabel = new Label("Empty");
+            emptyLabel.AddToClassList("empty-slot-label");
+            slot.Add(emptyLabel);
         }
         
         return slot;
@@ -232,6 +257,83 @@ public class InventoryUIController : MonoBehaviour
         }
 
         return icon;
+    }
+
+    private void RefreshBagSlots()
+    {
+        if (bagSlotsGrid == null || currentPlayerInventory == null) return;
+        
+        bagSlotsGrid.Clear();
+        
+        for (int i = 0; i < currentPlayerInventory.bagSlots.Count; i++)
+        {
+            var bag = currentPlayerInventory.bagSlots[i];
+            var bagSlot = CreateBagSlot(bag, i);
+            bagSlotsGrid.Add(bagSlot);
+        }
+    }
+
+    private VisualElement CreateBagSlot(Bag bag, int slotIndex)
+    {
+        var bagSlot = new VisualElement();
+        bagSlot.AddToClassList("bag-slot");
+        
+        if (bag != null && bag.bagData != null)
+        {
+            // Bag is equipped - show bag icon
+            bagSlot.AddToClassList("equipped");
+            
+            var bagIcon = new VisualElement();
+            bagIcon.AddToClassList("bag-icon");
+            
+            // DEBUG: Add these lines to see what's happening
+            Debug.Log($"Bag Slot {slotIndex}: BagData = {bag.bagData.name}");
+            Debug.Log($"Bag Slot {slotIndex}: bag.bagItem = {(bag.bagItem != null ? bag.bagItem.itemData.name : "NULL")}");
+            
+            // Use the stored bag item reference (NEW APPROACH)
+            if (bag.bagItem != null && bag.bagItem.itemData.icon != null)
+            {
+                bagIcon.style.backgroundImage = new StyleBackground(bag.bagItem.itemData.icon as Texture2D);
+                Debug.Log($"Bag Slot {slotIndex}: Icon SET successfully");
+            }
+            else
+            {
+                bagIcon.style.backgroundImage = null;
+                Debug.Log($"Bag Slot {slotIndex}: Icon is NULL - bagItem={(bag.bagItem != null ? "EXISTS" : "NULL")}, icon={(bag.bagItem?.itemData.icon != null ? "EXISTS" : "NULL")}");
+            }
+            
+            bagSlot.Add(bagIcon);
+            
+            // Keep tooltip functionality
+            bagSlot.RegisterCallback<PointerEnterEvent>(evt => 
+            {
+                if (bag.bagItem != null)
+                {
+                    tooltipName.text = bag.bagItem.itemData.itemName;
+                    tooltipRarity.text = bag.bagItem.itemData.itemRarity.ToString();
+                    tooltipDescription.text = bag.bagItem.itemData.itemDescription;
+                }
+                else
+                {
+                    tooltipName.text = bag.bagData.bagName;
+                    tooltipRarity.text = $"Slots: {bag.slots.Count}";
+                    tooltipDescription.text = $"Bag Type: {bag.bagData.bagType}";
+                }
+                itemTooltip.style.display = DisplayStyle.Flex;
+            });
+            
+            bagSlot.RegisterCallback<PointerLeaveEvent>(evt => HideTooltip());
+        }
+        else
+        {
+            // Empty bag slot
+            bagSlot.AddToClassList("empty");
+            var emptyLabel = new Label("Empty");
+            emptyLabel.AddToClassList("empty-slot-label");
+            bagSlot.Add(emptyLabel);
+        }
+        
+        return bagSlot;
     }
 
     #endregion
@@ -445,6 +547,15 @@ public class InventoryUIController : MonoBehaviour
                 playerStats.UseItem(item);
                 Debug.Log($"Collected {item.itemData.itemName}");
                 break;
+
+            case ItemType.Bag:
+                if (item.itemData.isEquippable)
+                {
+                    currentPlayerInventory.EquipBagItem(item);
+                    RefreshInventorySlots();
+                    Debug.Log($"Equipped {item.itemData.itemName}");
+                }
+                break;
         }
 
         RefreshAll();
@@ -542,5 +653,12 @@ public class InventoryUIController : MonoBehaviour
             RefreshInventorySlots(); // Refresh the UI after auto-stacking
             Debug.Log("Inventory auto-stacked");
         }
+    }
+
+    private void StartDragItem(ItemInstance item, VisualElement slot)
+    {
+        draggingItem = item;
+        // Optionally: create a ghost image and add it to the UI
+        Debug.Log($"Started dragging: {item.itemData.itemName}");
     }
 }

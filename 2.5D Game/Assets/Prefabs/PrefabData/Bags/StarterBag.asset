@@ -1,0 +1,69 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fd06d0bbb22a83b4596916f6d31030b9, type: 3}
+  m_Name: StarterBag
+  m_EditorClassIdentifier: 
+  itemID: 6
+  itemName: Starter Backpack
+  itemDescription: 'Starter Backpack '
+  icon: {fileID: 2800000, guid: d5979011c1901334cb752ea8397aca4a, type: 3}
+  itemLevel: 0
+  itemRarity: 1
+  count: 1
+  maxCount: 1
+  itemType: 6
+  weaponSubType: 0
+  armorSubType: 0
+  consumableSubType: 0
+  questSubType: 0
+  currencySubType: 0
+  craftingMaterialSubType: 0
+  weaponType: 0
+  weaponHand: 0
+  weaponWeight: 0
+  armorWeight: 0
+  damage: 0
+  weaponCritChance: 0
+  weaponCritDamage: 0
+  armorRating: 0
+  defenseRating: 0
+  magicDefenseRating: 0
+  staminaRating: 0
+  healthRating: 0
+  manaRating: 0
+  damageBonus: 0
+  critChanceBonus: 0
+  critDamageBonus: 0
+  attackSpeedBonus: 0
+  healthRestore: 0
+  manaRestore: 0
+  staminaRestore: 0
+  critChanceRestore: 0
+  potionType: 0
+  potionCount: 0
+  potionMaxCount: 0
+  questID: 0
+  questProgress: 0
+  questProgressMax: 0
+  questReward: 0
+  questRewardMax: 0
+  questRewardMin: 0
+  currencyType: 0
+  currencyValue: 1
+  currencyMinValue: 1
+  currencyMaxValue: 1
+  isBag: 1
+  bagDataReference: {fileID: 11400000, guid: 843e8b3590c1cf647ad555d3c86ba0a6, type: 2}
+  craftingMaterialTier: 0
+  craftingMaterialValue: 1
+  craftingMaterialMinValue: 1
+  craftingMaterialMaxValue: 1

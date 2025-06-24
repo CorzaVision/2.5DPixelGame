@@ -142,6 +142,14 @@ public class ItemDataEditor : Editor
 
         }
 
+        if (itemType == ItemType.Bag)
+        {
+            EditorGUILayout.Space();
+            EditorGUILayout.LabelField("Bag Stats", EditorStyles.boldLabel);
+            EditorGUILayout.PropertyField(serializedObject.FindProperty("bagDataReference"), new GUIContent("Bag Data Reference"));
+            EditorGUILayout.PropertyField(serializedObject.FindProperty("isBag"));
+        }
+
         serializedObject.ApplyModifiedProperties();
     }
 }

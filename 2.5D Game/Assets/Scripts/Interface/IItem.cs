@@ -8,6 +8,7 @@ using UnityEngine;
     Quest,
     Currency,
     CraftingMaterial,
+    Bag,
    }
    public enum WeaponSubType
    {
@@ -47,6 +48,7 @@ using UnityEngine;
     Quest,
     Currency,
     CraftingMaterial,
+    Bag,
    }
    public enum ItemRarity
    {
@@ -125,6 +127,19 @@ using UnityEngine;
     Master = 4,
     Unique = 5,
    }
+   public enum BagTier
+   {
+    Basic = 1,
+    Advanced = 2,
+    Expert = 3,
+    Unique = 4,
+   }
+   public enum BagType
+   {
+    Small,
+    Medium,
+    Large,
+   }
 
 
 
@@ -160,5 +175,7 @@ using UnityEngine;
         int craftingMaterialValue { get; set; }
         int craftingMaterialMinValue { get; set; }
         int craftingMaterialMaxValue { get; set; }
+        BagData bagDataReference { get; set; }
+        bool isBag { get; set; }
     }
 

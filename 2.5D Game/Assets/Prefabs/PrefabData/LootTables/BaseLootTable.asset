@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d4c27cb814398174697fb1f394090761, type: 3}
-  m_Name: LootTable
+  m_Name: BaseLootTable
   m_EditorClassIdentifier: 
   lootTableName: Test Loottable
   possibleLoot:
@@ -33,6 +33,15 @@ MonoBehaviour:
     minimumRarity: 0
     rarityBonusMultiplier: 0
   - item: {fileID: 11400000, guid: 2504983ff8f719944ab4e41619bee945, type: 2}
+    dropChance: 0.8
+    minCount: 1
+    maxCount: 1
+    minLevel: 1
+    maxLevel: 1
+    guaranteed: 1
+    minimumRarity: 0
+    rarityBonusMultiplier: 0
+  - item: {fileID: 11400000, guid: 81edc99bbc20cea49a6027138f3c1083, type: 2}
     dropChance: 0.8
     minCount: 1
     maxCount: 1

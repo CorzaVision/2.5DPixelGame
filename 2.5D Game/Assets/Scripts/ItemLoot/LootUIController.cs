@@ -126,7 +126,11 @@ public class LootUIController : MonoBehaviour
         {
             lootPanel.style.display = DisplayStyle.None;
         }
-        
+
+        // Only clear slots if you want to empty the bag when closing the UI
+        // (Usually, you only want to clear the UI, not the bag's contents)
+        // If you want to clear the bag, do it elsewhere (like after looting all)
+
         currentBag = null;
         currentPlayerInventory = null;
         currentBagScript = null;
@@ -142,10 +146,9 @@ public class LootUIController : MonoBehaviour
     private void RefreshLootList()
     {
         if (itemList == null || currentBag == null) return;
-        
         itemList.Clear();
 
-        foreach (var item in currentBag.items)
+        foreach (var item in currentBag.GetAllItems())
         {
             var itemElement = CreateLootItemElement(item);
             itemList.Add(itemElement);
@@ -260,16 +263,20 @@ public class LootUIController : MonoBehaviour
             Debug.Log($"Collected {totalCurrency} {item.itemData.currencyType}");
 
             // Remove the currency item from the loot bag (do not add to inventory)
-            currentBag.items.Remove(item);
+            int slotIndex = currentBag.slots.IndexOf(item);
+            if (slotIndex != -1)
+                currentBag.RemoveItem(slotIndex);
         }
         else
         {
             // For all other items, add to inventory as usual
             currentPlayerInventory.AddItemInstance(item);
-            currentBag.items.Remove(item);
+            int slotIndex = currentBag.slots.IndexOf(item);
+            if (slotIndex != -1)
+                currentBag.RemoveItem(slotIndex);
         }
 
-        if (currentBag.items.Count == 0)
+        if (currentBag.GetAllItems().Count == 0)
         {
             if (currentBagScript != null) 
             {
@@ -288,8 +295,11 @@ public class LootUIController : MonoBehaviour
     /// </summary>
     private void LootAll()
     {
-        foreach (var item in new List<ItemInstance>(currentBag.items))
+        for (int i = 0; i < currentBag.slots.Count; i++)
         {
+            var item = currentBag.slots[i];
+            if (item == null) continue;
+
             if (item.itemData.itemType == ItemType.Currency)
             {
                 int currencyAmount = item.itemData.currencyValue > 0
@@ -297,26 +307,18 @@ public class LootUIController : MonoBehaviour
                     : UnityEngine.Random.Range(item.itemData.currencyMinValue, item.itemData.currencyMaxValue + 1);
                 int totalCurrency = currencyAmount * item.count;
                 if (currentPlayerStats != null)
-                {
                     currentPlayerStats.AddCurrency(item.itemData.currencyType, totalCurrency);
-                }
-                else
-                {
-                    Debug.LogError("PlayerStats reference is missing in LootUIController!");
-                }
                 Debug.Log($"Collected {totalCurrency} {item.itemData.currencyType}");
             }
             else
             {
                 currentPlayerInventory.AddItemInstance(item);
             }
+            currentBag.slots[i] = null; // Remove item from slot
         }
-        currentBag.items.Clear();
 
         if (currentBagScript != null) 
-        {
             currentBagScript.OnAllLooted();
-        }
         HideLoot();
     }
 
