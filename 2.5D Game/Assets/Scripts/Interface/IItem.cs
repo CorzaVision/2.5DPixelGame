@@ -5,7 +5,6 @@ using UnityEngine;
     Weapon,
     Armor,
     Consumable,
-    Quest,
     Currency,
     CraftingMaterial,
     Bag,
@@ -32,20 +31,11 @@ using UnityEngine;
     Food,
     Scroll,
    }
-
-   public enum QuestSubType
-   {
-    Quest,
-    QuestItem,
-   }
-
-
    public enum ItemCategory
    {
     Weapon,
     Armor,
     Consumable,
-    Quest,
     Currency,
     CraftingMaterial,
     Bag,
@@ -157,7 +147,6 @@ using UnityEngine;
         WeaponSubType weaponSubType { get; set; }
         ArmorSubType armorSubType { get; set; }
         ConsumableSubType consumableSubType { get; set; }
-        QuestSubType questSubType { get; set; }
         WeaponType weaponType { get; set; }
         WeaponHand weaponHand { get; set; }
         ArmorWeight armorWeight { get; set; }

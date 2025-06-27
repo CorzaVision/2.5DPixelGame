@@ -1,31 +1,43 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
     <Style src="project://database/Assets/Scripts/UI/RPGGameCSS.uss?fileID=7433441132597879392&amp;guid=70914494e07c2be4b974f3161be3fd2e&amp;type=3#RPGGameCSS" />
-    <ui:VisualElement name="inventory-panel" class="inventory-panel">
-        <ui:VisualElement name="inventory-header" class="inventory-header">
-            <ui:Label text="Character" name="inventory-title" class="inventory-title" />
+    <ui:VisualElement name="inventory-panel" class="inventory-root" style="translate: 0 0; scale: 1 1; width: 950px;">
+        <ui:VisualElement class="inventory-header">
+            <ui:Label text="Inventory" class="inventory-title" />
             <ui:Button name="close-button" text="✕" class="close-button" />
         </ui:VisualElement>
-        <ui:VisualElement name="main-content" class="main-content">
-            <ui:VisualElement name="character-pane" class="character-pane">
-                <ui:Label text="Equipment" class="pane-title" />
-                <ui:VisualElement name="equipment-grid" class="equipment-grid" />
-                <ui:Label text="Bag Slots" class="pane-title" style="margin-top: 20px;" />
-                <ui:VisualElement name="bag-slots-grid" class="bag-slots-grid" />
-                <ui:Label text="Character Stats" class="pane-title" style="margin-top: 20px;" />
-                <ui:VisualElement name="stats-display" class="stats-display" />
-            </ui:VisualElement>
-            <ui:VisualElement name="inventory-pane" class="inventory-pane">
-                <ui:Label text="Inventory" class="pane-title" />
-                <ui:VisualElement name="sort-controls" class="sort-controls">
-                    <ui:Label text="Sort By:" class="sort-label"/>
-                    <ui:Button name="sort-type" text="Type" class="sort-button"/>
-                    <ui:Button name="sort-rarity" text="Rarity" class="sort-button"/>
-                    <ui:Button name="sort-level" text="Level" class="sort-button"/>
-                    <ui:Button name="sort-name" text="Name" class="sort-button"/>
-                    <ui:Button name="sort-value" text="Value" class="sort-button"/>
-                    <ui:Button name="auto-stack" text="Auto Stack" class="sort-button"/>
+        <ui:VisualElement class="inventory-main">
+            <ui:VisualElement class="equipment-stats-column">
+                <ui:Label text="Equipment" class="section-title" />
+                <ui:VisualElement name="equipment-grid" class="equipment-grid" style="width: 214px;">
+                    <ui:VisualElement name="slot-head" class="equipment-slot head-slot" />
+                    <ui:VisualElement name="slot-chest" class="equipment-slot chest-slot" />
+                    <ui:VisualElement name="slot-legs" class="equipment-slot legs-slot" />
+                    <ui:VisualElement name="slot-feet" class="equipment-slot feet-slot" />
+                    <ui:VisualElement name="slot-weapon" class="equipment-slot weapon-slot" />
+                    <ui:VisualElement name="slot-offhand" class="equipment-slot offhand-slot" />
                 </ui:VisualElement>
-                <ui:VisualElement name="inventory-grid" class="inventory-grid" />
+                <ui:VisualElement class="bag-row" style="height: 17px;">
+                    <ui:VisualElement name="bag-slot-0" class="bag-slot" />
+                    <ui:VisualElement name="bag-slot-1" class="bag-slot" />
+                    <ui:VisualElement name="bag-slot-2" class="bag-slot" />
+                    <ui:VisualElement name="bag-slot-3" class="bag-slot" />
+                    <ui:VisualElement name="bag-slot-4" class="bag-slot" />
+                </ui:VisualElement>
+                <ui:Label text="Character Stats" class="section-title" style="height: 24px;" />
+                <ui:VisualElement name="stats-display" class="stats-list" />
+                <ui:Label name="currency-inline" text="Gold: 0  Silver: 0  Copper: 0" class="currency-inline" style="height: 35px; -unity-text-align: lower-left;" />
+            </ui:VisualElement>
+            <ui:VisualElement class="inventory-column">
+                <ui:VisualElement class="sort-controls">
+                    <ui:Label text="Sort:" class="sort-label" />
+                    <ui:Button name="sort-type" text="Type" class="sort-button" />
+                    <ui:Button name="sort-rarity" text="Rarity" class="sort-button" />
+                    <ui:Button name="sort-level" text="Level" class="sort-button" />
+                    <ui:Button name="sort-name" text="Name" class="sort-button" />
+                    <ui:Button name="sort-value" text="Value" class="sort-button" />
+                    <ui:Button name="auto-stack" text="Auto Stack" class="sort-button" />
+                </ui:VisualElement>
+                <ui:VisualElement name="inventory-grid" class="inventory-grid" style="height: 310px;" />
             </ui:VisualElement>
         </ui:VisualElement>
     </ui:VisualElement>

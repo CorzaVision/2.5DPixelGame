@@ -762,6 +762,22 @@ PrefabInstance:
       propertyPath: playerInput
       value: 
       objectReference: {fileID: 1032053153}
+    - target: {fileID: 8017594663866261655, guid: 23bf791582e3e2443894aeee422aaa86, type: 3}
+      propertyPath: orthographic
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8017594663866261655, guid: 23bf791582e3e2443894aeee422aaa86, type: 3}
+      propertyPath: near clip plane
+      value: -4.9
+      objectReference: {fileID: 0}
+    - target: {fileID: 8017594663866261655, guid: 23bf791582e3e2443894aeee422aaa86, type: 3}
+      propertyPath: orthographic size
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 8017594663866261655, guid: 23bf791582e3e2443894aeee422aaa86, type: 3}
+      propertyPath: m_OcclusionCulling
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8191680197970630706, guid: 23bf791582e3e2443894aeee422aaa86, type: 3}
       propertyPath: m_LocalPosition.x
       value: -3.5235

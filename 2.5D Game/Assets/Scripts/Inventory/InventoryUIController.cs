@@ -1,6 +1,9 @@
 using UnityEngine;
 using UnityEngine.UIElements;
 using System.Collections.Generic;
+using System.Collections;
+using UnityEngine.InputSystem;
+
 
 /// <summary>
 /// Manages the inventory user interface, including item display, equipment slots, tooltips, and stat display.
@@ -27,21 +30,29 @@ public class InventoryUIController : MonoBehaviour
     private Button sortNameButton;
     private Button sortValueButton;
     private Button autoStackButton;
+
+    // Equipment Slots
+    private VisualElement slotHead;
+    private VisualElement slotChest;
+    private VisualElement slotLegs;
+    private VisualElement slotFeet;
+    private VisualElement slotWeapon;
+    private VisualElement slotOffhand;
+
     
     // Tooltip Elements
     private VisualElement itemTooltip;
     private Label tooltipName;
     private Label tooltipRarity;
     private Label tooltipDescription;
+    private Label currencyInline;
     private VisualElement tooltipStatsList;
     
     // Data
     private PlayerInventory currentPlayerInventory;
 
-    private VisualElement bagSlotsGrid;
+    private VisualElement[] bagSlots = new VisualElement[5];
 
-    private ItemInstance draggingItem = null;
-    private VisualElement draggingGhost = null;
 
     #region Unity Lifecycle
 
@@ -91,7 +102,7 @@ public class InventoryUIController : MonoBehaviour
         tooltipRarity = root.Q<Label>("tooltip-rarity");
         tooltipDescription = root.Q<Label>("tooltip-description");
         tooltipStatsList = root.Q<VisualElement>("tooltip-stats-list");
-
+        currencyInline = root.Q<Label>("currency-inline");
         // Sort controls
         sortControls = root.Q<VisualElement>("sort-controls");
         sortTypeButton = root.Q<Button>("sort-type");
@@ -101,7 +112,24 @@ public class InventoryUIController : MonoBehaviour
         sortValueButton = root.Q<Button>("sort-value");
         autoStackButton = root.Q<Button>("auto-stack");
 
-        bagSlotsGrid = root.Q<VisualElement>("bag-slots-grid");
+        // Equipment slots
+        slotHead = root.Q<VisualElement>("slot-head");
+        slotChest = root.Q<VisualElement>("slot-chest");
+        slotLegs = root.Q<VisualElement>("slot-legs");
+        slotFeet = root.Q<VisualElement>("slot-feet");
+        slotWeapon = root.Q<VisualElement>("slot-weapon");
+        slotOffhand = root.Q<VisualElement>("slot-offhand");
+
+        // Bag slots
+        for (int i = 0; i < bagSlots.Length; i++)
+        {
+            bagSlots[i] = root.Q<VisualElement>($"bag-slot-{i}");
+        }
+
+        if (currencyInline != null && playerStats != null)
+        {
+            currencyInline.text = $"Gold: {playerStats.GetCurrency(CurrencyType.Gold)} Silver: {playerStats.GetCurrency(CurrencyType.Silver)} Copper: {playerStats.GetCurrency(CurrencyType.Copper)}"; // Gold, Silver, Copper
+        }
     }
 
     /// <summary>
@@ -210,12 +238,6 @@ public class InventoryUIController : MonoBehaviour
             slot.RegisterCallback<PointerEnterEvent>(evt => ShowTooltip(evt, item));
             slot.RegisterCallback<PointerLeaveEvent>(evt => HideTooltip());
             slot.RegisterCallback<ClickEvent>(evt => OnItemClicked(item));
-            slot.RegisterCallback<PointerDownEvent>(evt => {
-                if (item != null)
-                {
-                    StartDragItem(item, slot);
-                }
-            });
             
             // Add icon
             var icon = CreateItemIcon(item);
@@ -261,15 +283,20 @@ public class InventoryUIController : MonoBehaviour
 
     private void RefreshBagSlots()
     {
-        if (bagSlotsGrid == null || currentPlayerInventory == null) return;
-        
-        bagSlotsGrid.Clear();
-        
-        for (int i = 0; i < currentPlayerInventory.bagSlots.Count; i++)
+        if (currentPlayerInventory == null) return;
+        for (int i = 0; i < bagSlots.Length; i++)
         {
-            var bag = currentPlayerInventory.bagSlots[i];
-            var bagSlot = CreateBagSlot(bag, i);
-            bagSlotsGrid.Add(bagSlot);
+            bagSlots[i].Clear();
+            Bag bag = (i < currentPlayerInventory.bagSlots.Count) ? currentPlayerInventory.bagSlots[i] : null;
+            if (bag != null)
+            {
+                // add Icon, tooltip etc to Bagslot
+
+            }
+            else
+            {
+                 // Empty bag slot leaving blank
+            }
         }
     }
 
@@ -588,9 +615,7 @@ public class InventoryUIController : MonoBehaviour
 
         // Currency stats with color
         statsDisplay.Add(CreateStatSeparator());
-        statsDisplay.Add(CreateColoredStatLabel($"Gold: {playerStats.GetCurrency(CurrencyType.Gold)}", new Color(1f, 0.84f, 0f)));      // Gold
-        statsDisplay.Add(CreateColoredStatLabel($"Silver: {playerStats.GetCurrency(CurrencyType.Silver)}", new Color(0.75f, 0.75f, 0.75f))); // Silver
-        statsDisplay.Add(CreateColoredStatLabel($"Copper: {playerStats.GetCurrency(CurrencyType.Copper)}", new Color(0.72f, 0.45f, 0.2f)));  // Copper
+        statsDisplay.Add(CreateColoredStatLabel($"Gold: {playerStats.GetCurrency(CurrencyType.Gold)} Silver: {playerStats.GetCurrency(CurrencyType.Silver)} Copper: {playerStats.GetCurrency(CurrencyType.Copper)}", new Color(1f, 0.84f, 0f))); // Gold, Silver, Copper
     }
 
     /// <summary>
@@ -628,12 +653,14 @@ public class InventoryUIController : MonoBehaviour
         return label;
     }
 
-    #endregion
-
     private void OnCurrencyChanged(CurrencyType type, int amount)
     {
         RefreshStats();
     }
+
+    #endregion
+
+    #region Sorting
 
     private void SortInventory(PlayerInventory.SortType sortType)
     {
@@ -655,10 +682,6 @@ public class InventoryUIController : MonoBehaviour
         }
     }
 
-    private void StartDragItem(ItemInstance item, VisualElement slot)
-    {
-        draggingItem = item;
-        // Optionally: create a ghost image and add it to the UI
-        Debug.Log($"Started dragging: {item.itemData.itemName}");
-    }
+    #endregion
+
 }

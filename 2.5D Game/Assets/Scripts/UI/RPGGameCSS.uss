@@ -1,317 +1,67 @@
-.inventory-panel, .loot-panel { /* Style both panels at once */
-    position: absolute;
-    width: 700px;
-    background-color: #181818;
+/* ===== CORE RPG UI STYLES ===== */
+
+/* Main Panel Styles */
+.inventory-root, .loot-panel {
+    min-width: 340px;
+    max-width: 600px;
+    min-height: 340px;
+    max-height: 520px;
+    background-color: rgba(24,24,24,0.98);
+    border-radius: 18px 18px 0 0;
+    padding: 22px;
+    box-sizing: border-box;
+    flex-direction: column;
+    flex-grow: 1;
+    flex-shrink: 1;
+    flex-basis: auto;
     border-width: 2px;
-    border-color: #8B7355;
-    padding: 20px;
-    top: 50%;
-    left: 50%;
-    translate: -50% -50%;
+    border-color: #444;
+    border-style: solid;
 }
 
-.loot-panel { /* Specific override for loot panel width */
-    width: 450px;
-}
-
+/* Header Styles */
 .inventory-header, .loot-header {
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 20px;
-    padding-bottom: 15px;
+    margin-bottom: 16px;
     border-bottom-width: 2px;
-    border-bottom-color: #444;
+    border-bottom-color: #555;
+    border-bottom-style: solid;
+    padding-bottom: 12px;
+    background-color: rgba(40,40,40,0.8);
+    border-radius: 8px;
+    padding: 12px 16px;
 }
 
 .inventory-title, .loot-title {
     color: #FFD700;
-    font-size: 22px;
+    font-size: 26px;
     -unity-font-style: bold;
 }
 
 .close-button {
-    width: 30px;
-    height: 30px;
+    width: 36px;
+    height: 36px;
     background-color: #8B0000;
     color: #FFD700;
-    font-size: 16px;
-    -unity-font-style: bold;
+    font-size: 18px;
     border-width: 0px;
+    border-radius: 8px;
 }
-
-.close-button:hover {
+.close-button:hover { 
     background-color: #DC143C;
-}
-
-.main-content {
-    flex-direction: row;
-}
-
-.pane-title {
-    color: #C0C0C0;
-    font-size: 16px;
-    margin-bottom: 10px;
-    -unity-text-align: middle-center;
-}
-
-.character-pane {
-    width: 40%;
-    padding-right: 15px;
-    border-right-width: 1px;
-    border-right-color: #444;
-}
-
-.inventory-pane {
-    flex-grow: 1;
-    padding-left: 15px;
-}
-
-.equipment-grid, .inventory-grid {
-    background-color: #0A0A0A;
-    padding: 10px;
-    flex-direction: row;
-    flex-wrap: wrap;
-}
-
-.stats-display {
-    background-color: #0A0A0A;
-    padding: 15px;
-}
-
-.stats-display > .stat-label {
-    color: #C0C0C0;
-    font-size: 14px;
-    margin-bottom: 5px;
-}
-
-/* Add this new style for inventory and equipment icons */
-.slot-icon {
-    width: 100%;
-    height: 100%;
-    background-size: contain;
-    background-repeat: no-repeat;
-    background-position: center;
-}
-
-.inventory-slot {
-    width: 60px;
-    height: 60px;
-    background-color: #2A2A2A;
-    border-color: #555;
-    border-width: 1px;
-    margin: 4px;
-    justify-content: center;
-    align-items: center;
-}
-
-.inventory-slot:hover {
-    border-color: #FFD700;
-}
-
-.equipment-slot {
-    flex-direction: row;
-    align-items: center;
-    width: 100%;
-    height: 60px;
-    background-color: #2A2A2A;
-    border-color: #8B7355;
-    border-width: 1px;
-    margin: 4px;
-    padding: 5px;
-}
-
-.equipment-icon-container {
-    width: 50px;
-    height: 50px;
-    margin-right: 10px;
-    border-width: 2px;
-    justify-content: center;
-    align-items: center;
-}
-
-.equipment-item-name {
-    -unity-font-style: bold;
-    font-size: 14px;
-}
-
-.stack-count-label {
-    position: absolute;
-    bottom: 2px;
-    right: 4px;
-    font-size: 14px;
-    -unity-font-style: bold;
-    color: white;
-    -unity-text-outline-width: 1.5px;
-    -unity-text-outline-color: black;
-}
-
-/* --- TOOLTIP STYLES --- */
-.tooltip-panel {
-    position: absolute;
-    display: none;
-    background-color: rgb(30, 30, 30);
-    border-color: rgb(100, 100, 100);
-    border-width: 2px;
-    border-radius: 5px;
-    padding: 10px;
-    min-width: 200px;
-    max-width: 300px;
-}
-
-.tooltip-title {
-    -unity-font-style: bold;
-    font-size: 16px;
-    margin-bottom: 5px;
-}
-
-/* Add this new style for the rarity text */
-.tooltip-rarity {
-    -unity-font-style: bold;
-    font-size: 14px;
-    margin-bottom: 10px;
-}
-
-.tooltip-description {
-    font-size: 12px;
-    -unity-font-style: italic;
-    white-space: normal;
-    margin-bottom: 10px;
-}
-
-.tooltip-stat-label {
-    font-size: 14px;
-    color: rgb(200, 200, 200);
-}
-
-
-/* --- SHARED RARITY TEXT COLORS --- */
-.rarity-common { color: #9D9D9D; }
-.rarity-uncommon { color: #1EFF00; }
-.rarity-rare { color: #0070DD; }
-.rarity-epic { color: #A335EE; }
-.rarity-legendary { color: #FF8000; }
-
-/* --- SHARED RARITY BORDER COLORS --- */
-.rarity-border-common { border-color: #9D9D9D; }
-.rarity-border-uncommon { border-color: #1EFF00; }
-.rarity-border-rare { border-color: #0070DD; }
-.rarity-border-epic { border-color: #A335EE; }
-.rarity-border-legendary { border-color: #FF8000; }
-
-
-/* --- LOOT UI SPECIFIC STYLES --- */
-.item-list {
-    flex: 1;
-    margin: 15px 0;
-    background-color: #0A0A0A;
-    padding: 10px;
-}
-
-.loot-item {
-    background-color: #2A2A2A;
-    margin: 4px 0;
-    padding: 8px 15px;
-    border-left-width: 4px;
-    flex-direction: row;
-    align-items: center;
-}
-
-/* --- NEW STYLE FOR LOOT ITEM ICONS --- */
-.loot-item-icon {
-    width: 40px;
-    height: 40px;
-    margin-right: 15px; /* Space between icon and name */
-    background-size: contain; /* Ensures the whole icon is visible */
-    background-repeat: no-repeat;
-    background-position: center;
-}
-
-.loot-item:hover {
-    background-color: #404040;
-    border-left-color: #FFD700;
-}
-
-.loot-item .item-name {
-    font-size: 14px;
-    -unity-font-style: bold;
-    flex-grow: 1;
-}
-
-.loot-item .item-count {
-    color: #C0C0C0;
-    font-size: 12px;
-    -unity-font-style: bold;
-}
-
-/* Apply border color to loot items based on rarity */
-.loot-item.rarity-common {
-    border-left-width: 4px;
-    border-left-color: #9D9D9D;
-    
-    background-color: #222;
-}
-.loot-item.rarity-uncommon {
-    border-left-width: 4px;
-    border-left-color: #1EFF00;
-    
-    background-color: #232f23;
-}
-.loot-item.rarity-rare {
-    border-left-width: 4px;
-    border-left-color: #0070DD;
-    
-    background-color: #1a2233;
-}
-.loot-item.rarity-epic {
-    border-left-width: 4px;
-    border-left-color: #A335EE;
-    
-    background-color: #2a1a33;
-}
-.loot-item.rarity-legendary {
-    border-left-width: 4px;
-    border-left-color: #FF8000;
-    
-    background-color: #332a1a;
-}
-
-.item-name.rarity-common { color: #9D9D9D; }
-.item-name.rarity-uncommon { color: #1EFF00; }
-.item-name.rarity-rare { color: #0070DD; }
-.item-name.rarity-epic { color: #A335EE; }
-.item-name.rarity-legendary { color: #FF8000; }
-
-.button-container {
-    flex-direction: row;
-    justify-content: center;
-    margin-top: 20px;
-    padding-top: 15px;
-    border-top-width: 2px;
-    border-top-color: #444;
-}
-
-.loot-all-button {
-    background-color: #228B22;
-    color: #FFFFFF;
-    padding: 12px 25px;
-    font-size: 16px;
-    -unity-font-style: bold;
-    border-width: 0;
-}
-
-.loot-all-button:hover {
-    background-color: #32CD32;
 }
 
 /* Currency Section Styles */
 .currency-section {
     background-color: #1A1A1A;
     border-width: 2px;
-    border-color: #444;
-    border-radius: 5px;
-    padding: 10px;
-    margin: 10px 0;
+    border-color: #555;
+    border-style: solid;
+    border-radius: 8px;
+    padding: 12px;
+    margin: 12px 0;
 }
 
 .currency-title {
@@ -331,124 +81,116 @@
 .currency-label {
     font-size: 14px;
     -unity-font-style: bold;
-    padding: 5px 10px;
-    border-radius: 3px;
-    background-color: #2A2A2A;
+    padding: 6px 12px;
+    border-radius: 6px;
+    background-color: rgba(40,40,40,0.8);
+    border-width: 1px;
+    border-style: solid;
 }
 
 .gold-currency {
     color: #FFD700;
     border-color: #FFD700;
-    border-width: 1px;
+    background-color: rgba(255,215,0,0.1);
+}
+.gold-currency:hover { 
+    background-color: rgba(255,215,0,0.2);
 }
 
 .silver-currency {
     color: #C0C0C0;
     border-color: #C0C0C0;
-    border-width: 1px;
+    background-color: rgba(192,192,192,0.1);
+}
+.silver-currency:hover { 
+    background-color: rgba(192,192,192,0.2);
 }
 
 .copper-currency {
     color: #CD7F32;
     border-color: #CD7F32;
-    border-width: 1px;
+    background-color: rgba(205,127,50,0.1);
+}
+.copper-currency:hover { 
+    background-color: rgba(205,127,50,0.2);
 }
 
-.item-name.currency-item { color: #FFD700; }
-
-/* This will color the border or background of the entire item slot */
-.loot-item.rarity-common { border-left: 4px solid #9D9D9D; }
-.loot-item.rarity-uncommon { border-left: 4px solid #1EFF00; }
-.loot-item.rarity-rare { border-left: 4px solid #0070DD; }
-.loot-item.rarity-epic { border-left: 4px solid #A335EE; }
-.loot-item.rarity-legendary { border-left: 4px solid #FF8000; }
-
-/* Optional: background color for extra emphasis */
-.loot-item.rarity-common { background-color: #222; }
-.loot-item.rarity-uncommon { background-color: #232f23; }
-.loot-item.rarity-rare { background-color: #1a2233; }
-.loot-item.rarity-epic { background-color: #2a1a33; }
-.loot-item.rarity-legendary { background-color: #332a1a; }
-
-.loot-item.rarity-epic {
-    /* box-shadow: 0 0 8px #A335EE;  <-- Not supported, so commented out */
-}
-.loot-item.rarity-legendary {
-    /* box-shadow: 0 0 12px #FF8000;  <-- Not supported, so commented out */
-}
-
-.sort-controls {
+/* Main Content Layout */
+.inventory-main {
     flex-direction: row;
-    justify-content: flex-start;
-    align-items: center;
-    padding-top: 8px;
-    padding-bottom: 8px;
-    padding-left: 16px;
-    padding-right: 16px;
+    gap: 24px;
+    flex-grow: 1;
+    flex-shrink: 1;
+    width: 100%;
+    height: 100%;
+}
+
+/* Equipment & Stats Column */
+.equipment-stats-column {
+    flex-grow: 0;
+    flex-shrink: 0;
+    flex-basis: 240px;
+    min-width: 200px;
+    max-width: 280px;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.section-title {
+    color: #FFD700;
+    font-size: 18px;
     margin-bottom: 10px;
-    background-color: rgba(30, 30, 30, 0.15);
-    border-top-left-radius: 6px;
-    border-top-right-radius: 6px;
-    border-bottom-left-radius: 6px;
-    border-bottom-right-radius: 6px;
-    border-top-width: 1px;
+    -unity-font-style: bold;
     border-bottom-width: 1px;
-    border-left-width: 1px;
-    border-right-width: 1px;
-    border-top-color: rgba(80,80,80,0.5);
-    border-bottom-color: rgba(80,80,80,0.5);
-    border-left-color: rgba(80,80,80,0.5);
-    border-right-color: rgba(80,80,80,0.5);
-    max-width: 95%;
-    min-width: 0;
+    border-bottom-color: #555;
+    border-bottom-style: solid;
+    padding-bottom: 4px;
+}
+
+/* WoW-style Equipment Grid */
+.equipment-grid {
+    display: flex;
     flex-wrap: wrap;
+    flex-direction: row;
+    width: 160px;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+.equipment-slot {
+    width: 40px;
+    height: 40px;
+    background-color: #444;
+    border-width: 2px;
+    border-radius: 6px;
+    align-items: center;
+    justify-content: center;
+    border-style: solid;
+    border-color: #222;
+    margin: 0;
 }
 
-.sort-label {
-    color: white;
-    font-size: 14px;
-    margin-right: 10px;
-    min-width: 60px;
+/* Stats and Currency */
+.stats-list {
+    margin-bottom: 6px;
+}
+.currency-row {
+    display: none;
+}
+.horizontal-separator {
+    display: none;
 }
 
-.sort-button {
-    background-color: rgba(50, 50, 50, 0.9);
-    border-top-width: 1px;
-    border-bottom-width: 1px;
-    border-left-width: 1px;
-    border-right-width: 1px;
-    border-top-color: rgba(200, 200, 200, 0.3);
-    border-bottom-color: rgba(200, 200, 200, 0.3);
-    border-left-color: rgba(200, 200, 200, 0.3);
-    border-right-color: rgba(200, 200, 200, 0.3);
-    border-top-left-radius: 4px;
-    border-top-right-radius: 4px;
-    border-bottom-left-radius: 4px;
-    border-bottom-right-radius: 4px;
-    padding-top: 6px;
-    padding-bottom: 6px;
-    padding-left: 14px;
-    padding-right: 14px;
-    margin-left: 4px;
-    margin-right: 4px;
-    color: white;
-    font-size: 13px;
-    min-width: 70px;
-    transition-duration: 0.2s;
+/* Inventory Column */
+.inventory-column {
+    flex-grow: 1;
+    flex-shrink: 1;
+    flex-basis: 0;
+    flex-direction: column;
+    gap: 16px;
+    min-width: 320px;
 }
 
-.sort-button:hover {
-    background-color: rgba(80, 80, 80, 1.0);
-    border-top-color: rgba(255, 255, 255, 0.5);
-    border-bottom-color: rgba(255, 255, 255, 0.5);
-    border-left-color: rgba(255, 255, 255, 0.5);
-    border-right-color: rgba(255, 255, 255, 0.5);
-}
-
-.sort-button:active {
-    background-color: rgba(20, 20, 20, 0.8);
-}
-
+/* Bag Slots Grid */
 .bag-slots-grid {
     flex-direction: row;
     flex-wrap: wrap;
@@ -456,58 +198,262 @@
     margin-bottom: 12px;
     min-height: 60px;
     background-color: #181818;
-    border-radius: 5px;
-    padding: 8px;
+    border-radius: 8px;
+    padding: 10px;
     justify-content: flex-start;
     align-items: center;
     gap: 8px;
+    border-width: 1px;
+    border-color: #444;
+    border-style: solid;
 }
 
+.bag-row {
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+    margin: 12px 0 12px 0;
+}
 .bag-slot {
-    width: 48px;
-    height: 48px;
+    width: 40px;
+    height: 40px;
     background-color: #222;
     border-width: 1px;
     border-color: #555;
-    border-radius: 4px;
+    border-radius: 5px;
     justify-content: center;
     align-items: center;
-    margin: 2px;
 }
 
 .bag-slot.equipped {
     border-color: #FFD700;
+    background-color: rgba(255,215,0,0.2);
 }
 
-.bag-popup {
+.bag-slot:hover { 
+    border-color: #FFD700;
+}
+
+/* Sort Controls */
+.sort-controls {
+    flex-direction: row;
+    gap: 8px;
+    margin-bottom: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.sort-label { 
+    color: #C0C0C0; 
+    font-size: 14px; 
+    -unity-font-style: bold;
+}
+
+.sort-button {
+    background-color: #333;
+    color: #FFD700;
+    border-width: 1px;
+    border-color: #FFD700;
+    border-radius: 6px;
+    padding: 6px 12px;
+    font-size: 12px;
+}
+
+.sort-button:hover { 
+    background-color: #444;
+}
+
+/* Inventory Grid */
+.inventory-grid {
+    flex-wrap: wrap;
+    gap: 8px;
+    background-color: #101010;
+    border-radius: 8px;
+    padding: 12px;
+    min-height: 180px;
+    max-height: 340px;
+    overflow-y: auto;
+    flex-direction: row;
+    border-width: 1px;
+    border-color: #444;
+    border-style: solid;
+}
+
+.inventory-slot {
+    width: 56px;
+    height: 56px;
+    background-color: #2A2A2A;
+    border-width: 1px;
+    border-color: #555;
+    border-radius: 6px;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    border-style: solid;
+}
+
+.inventory-slot:hover { 
+    border-color: #FFD700;
+}
+
+/* Loot Panel Specific Styles */
+.loot-panel {
     position: absolute;
     top: 50%;
     left: 50%;
     translate: -50% -50%;
-    min-width: 300px;
+    min-width: 400px;
+    max-width: 600px;
     min-height: 200px;
-    background-color: #222;
+    max-height: 500px;
+    background-color: rgba(24,24,24,0.98);
+    border-radius: 12px;
     border-width: 2px;
     border-color: #FFD700;
-    border-radius: 8px;
-    padding: 20px;
+    border-style: solid;
+    padding: 24px;
+    box-sizing: border-box;
     z-index: 100;
-    flex-direction: column;
-    align-items: center;
-    justify-content: flex-start;
 }
 
-.bag-popup-title {
-    color: #FFD700;
-    font-size: 18px;
-    margin-bottom: 12px;
+/* Item List Styles */
+.item-list {
+    flex: 1;
+    margin: 15px 0;
+    background-color: #0A0A0A;
+    padding: 12px;
+    border-radius: 8px;
+    border-width: 1px;
+    border-color: #444;
+    border-style: solid;
+    max-height: 300px;
 }
 
-.bag-popup-slots {
+.loot-item {
+    background-color: #2A2A2A;
+    margin: 4px 0;
+    padding: 10px 15px;
+    border-left-width: 4px;
     flex-direction: row;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-bottom: 16px;
+    align-items: center;
+    border-radius: 6px;
+}
+
+.loot-item:hover {
+    background-color: #404040;
+    border-left-color: #FFD700;
+}
+
+.loot-item-icon {
+    width: 40px;
+    height: 40px;
+    margin-right: 15px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.loot-item .item-name {
+    font-size: 14px;
+    -unity-font-style: bold;
+    flex-grow: 1;
+}
+
+.loot-item .item-count {
+    color: #C0C0C0;
+    font-size: 12px;
+    -unity-font-style: bold;
+}
+
+/* Button Container */
+.button-container {
+    flex-direction: row;
+    justify-content: center;
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top-width: 2px;
+    border-top-color: #555;
+    border-top-style: solid;
+}
+
+.loot-all-button {
+    background-color: #228B22;
+    color: #FFFFFF;
+    padding: 12px 25px;
+    font-size: 16px;
+    -unity-font-style: bold;
+    border-width: 0;
+    border-radius: 8px;
+}
+
+.loot-all-button:hover {
+    background-color: #32CD32;
+}
+
+/* Tooltip Styles */
+.tooltip-panel {
+    position: absolute;
+    display: none;
+    background-color: rgb(30, 30, 30);
+    border-width: 2px;
+    border-color: #FFD700;
+    border-style: solid;
+    border-radius: 8px;
+    padding: 12px;
+    min-width: 200px;
+    max-width: 300px;
+    z-index: 1000;
+}
+
+.tooltip-title {
+    -unity-font-style: bold;
+    font-size: 16px;
+    margin-bottom: 5px;
+    color: #FFD700;
+}
+
+.tooltip-rarity {
+    -unity-font-style: bold;
+    font-size: 14px;
+    margin-bottom: 10px;
+}
+
+.tooltip-description {
+    font-size: 12px;
+    -unity-font-style: italic;
+    white-space: normal;
+    margin-bottom: 10px;
+    color: #C0C0C0;
+}
+
+.tooltip-stat-label {
+    font-size: 14px;
+    color: rgb(200, 200, 200);
+}
+
+.tooltip-stats-list {
+    flex-direction: column;
+    gap: 3px;
+}
+
+/* Item Icons */
+.slot-icon {
+    width: 100%;
+    height: 100%;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.stack-count-label {
+    position: absolute;
+    bottom: 2px;
+    right: 4px;
+    font-size: 14px;
+    -unity-font-style: bold;
+    color: white;
+    -unity-text-outline-width: 1.5px;
+    -unity-text-outline-color: black;
 }
 
 .bag-icon {
@@ -517,3 +463,109 @@
     background-repeat: no-repeat;
     margin: 2px;
 }
+
+/* Rarity Colors */
+.rarity-common { color: #9D9D9D; }
+.rarity-uncommon { color: #1EFF00; }
+.rarity-rare { color: #0070DD; }
+.rarity-epic { color: #A335EE; }
+.rarity-legendary { color: #FF8000; }
+
+.rarity-border-common { border-color: #9D9D9D; }
+.rarity-border-uncommon { border-color: #1EFF00; }
+.rarity-border-rare { border-color: #0070DD; }
+.rarity-border-epic { border-color: #A335EE; }
+.rarity-border-legendary { border-color: #FF8000; }
+
+/* Rarity Background Colors for Loot Items */
+.loot-item.rarity-common {
+    border-left-width: 4px;
+    border-left-color: #9D9D9D;
+    border-left-style: solid;
+    background-color: #222;
+}
+.loot-item.rarity-uncommon {
+    border-left-width: 4px;
+    border-left-color: #1EFF00;
+    border-left-style: solid;
+    background-color: #232f23;
+}
+.loot-item.rarity-rare {
+    border-left-width: 4px;
+    border-left-color: #0070DD;
+    border-left-style: solid;
+    background-color: #1a2233;
+}
+.loot-item.rarity-epic {
+    border-left-width: 4px;
+    border-left-color: #A335EE;
+    border-left-style: solid;
+    background-color: #2a1a33;
+}
+.loot-item.rarity-legendary {
+    border-left-width: 4px;
+    border-left-color: #FF8000;
+    border-left-style: solid;
+    background-color: #332a1a;
+}
+
+/* Item Name Rarity Colors */
+.item-name.rarity-common { color: #9D9D9D; }
+.item-name.rarity-uncommon { color: #1EFF00; }
+.item-name.rarity-rare { color: #0070DD; }
+.item-name.rarity-epic { color: #A335EE; }
+.item-name.rarity-legendary { color: #FF8000; }
+
+.item-name.currency-item { color: #FFD700; }
+
+/* Bag Popup Styles */
+.bag-popup {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    translate: -50% -50%;
+    min-width: 320px;
+    min-height: 240px;
+    background-color: #222;
+    border-width: 2px;
+    border-color: #FFD700;
+    border-style: solid;
+    border-radius: 12px;
+    padding: 24px;
+    z-index: 100;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+.bag-popup-title {
+    color: #FFD700;
+    font-size: 20px;
+    margin-bottom: 16px;
+    -unity-font-style: bold;
+}
+
+.bag-popup-slots {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 16px;
+    background-color: #181818;
+    border-radius: 8px;
+    padding: 12px;
+    border-width: 1px;
+    border-color: #444;
+    border-style: solid;
+}
+
+.currency-inline {
+    font-size: 15px;
+    color: #FFD700;
+    margin-top: 8px;
+    margin-bottom: 0;
+    margin-left: 0;
+    margin-right: 0;
+    -unity-font-style: bold;
+    text-align: left;
+}
+.bag-column { display: none; }

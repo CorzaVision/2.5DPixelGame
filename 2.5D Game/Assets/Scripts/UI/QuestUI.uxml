@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements">
+    <Style src="RPGGameCSS.uss" />
+    
+    <ui:VisualElement name="quest-panel" class="panel">
+        <ui:Label name="quest-title" text="Quest Log" class="panel-title" />
+        
+        <ui:ScrollView name="quest-list" class="quest-list">
+            <!-- Quest entries will be added here dynamically -->
+        </ui:ScrollView>
+    </ui:VisualElement>
+</ui:UXML>

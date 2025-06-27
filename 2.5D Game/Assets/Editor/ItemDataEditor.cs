@@ -53,9 +53,6 @@ public class ItemDataEditor : Editor
             case ItemType.Consumable:
                 EditorGUILayout.PropertyField(serializedObject.FindProperty("consumableSubType"), new GUIContent("Consumable Type")); // Consumable Sub Type
                 break;
-            case ItemType.Quest:
-                EditorGUILayout.PropertyField(serializedObject.FindProperty("questSubType"), new GUIContent("Quest Type")); // Quest Sub Type
-                break;
         }
 
         EditorGUILayout.Space();
@@ -108,17 +105,7 @@ public class ItemDataEditor : Editor
             EditorGUILayout.PropertyField(serializedObject.FindProperty("armorCritDamage")); // Crit Damage
         }
 
-        if (itemType == ItemType.Quest) // Quest Stats
-        {
-            EditorGUILayout.Space();
-            EditorGUILayout.LabelField("Quest Stats", EditorStyles.boldLabel);
-            EditorGUILayout.PropertyField(serializedObject.FindProperty("questID")); // Quest ID
-            EditorGUILayout.PropertyField(serializedObject.FindProperty("questProgress")); // Quest Progress
-            EditorGUILayout.PropertyField(serializedObject.FindProperty("questProgressMax")); // Quest Progress Max
-            EditorGUILayout.PropertyField(serializedObject.FindProperty("questReward")); // Quest Reward
-            EditorGUILayout.PropertyField(serializedObject.FindProperty("questRewardMax")); // Quest Reward Max
-            EditorGUILayout.PropertyField(serializedObject.FindProperty("questRewardMin")); // Quest Reward Min
-        }
+
 
         if (itemType == ItemType.Currency)
         {
