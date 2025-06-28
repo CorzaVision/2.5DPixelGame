@@ -1039,13 +1039,17 @@ PrefabInstance:
       propertyPath: m_Name
       value: UI Elements
       objectReference: {fileID: 0}
-    - target: {fileID: 6091136728607234957, guid: 571bd51ea0a08a34bb4c1be7d369739c, type: 3}
-      propertyPath: m_AnchorMax.x
+    - target: {fileID: 5874651720063496744, guid: 571bd51ea0a08a34bb4c1be7d369739c, type: 3}
+      propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6091136728607234957, guid: 571bd51ea0a08a34bb4c1be7d369739c, type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6091136728607234957, guid: 571bd51ea0a08a34bb4c1be7d369739c, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

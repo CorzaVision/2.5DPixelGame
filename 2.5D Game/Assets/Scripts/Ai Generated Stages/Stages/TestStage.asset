@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f87339e24f3f65f48b001be8b880ce01, type: 3}
+  m_Name: TestStage
+  m_EditorClassIdentifier: 
+  stageName: DevModeStage
+  roomCount: 25
+  layoutComplexity: 0.5
+  enemyDensity: 0.3
+  startRoomPosition: {x: 0, y: 0}
+  startRoomSize: {x: 3, y: 3}
+  playerSpawnPosition: {x: 1, y: 1}
+  mainExitPosition: {x: 15, y: 0}
+  exitRoomSize: {x: 3, y: 3}
+  roomSize: {x: 3, y: 3}
+  minEnemiesPerRoom: 2
+  maxEnemiesPerRoom: 5
+  allowBranches: 1
+  branchChance: 0.3
+  maxBranchDepth: 2
