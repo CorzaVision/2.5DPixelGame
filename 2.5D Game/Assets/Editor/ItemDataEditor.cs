@@ -10,7 +10,8 @@ public class ItemDataEditor : Editor
         serializedObject.Update();
 
         SerializedProperty itemTypeProp = serializedObject.FindProperty("itemType");
-        string enumName = itemTypeProp.enumNames[itemTypeProp.enumValueIndex];
+        int safeIndex = Mathf.Clamp(itemTypeProp.enumValueIndex, 0, itemTypeProp.enumNames.Length - 1);
+        string enumName = itemTypeProp.enumNames[safeIndex];
         ItemType itemType = (ItemType)Enum.Parse(typeof(ItemType), enumName);
 
         EditorGUILayout.LabelField("Item Information", EditorStyles.boldLabel); // Item Information

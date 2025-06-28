@@ -2,6 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using System;
 using System.Linq;
+using UnityEngine.InputSystem;
 
 public class QuestManager : MonoBehaviour
 {
@@ -9,6 +10,7 @@ public class QuestManager : MonoBehaviour
     [Header("Quest Management")]
     [SerializeField] private List<QuestData> availableQuests;
     [SerializeField] private bool showDebug = true;
+    [SerializeField] private QuestData questToAccept;
 
     #endregion
 
@@ -17,6 +19,8 @@ public class QuestManager : MonoBehaviour
     private List<QuestData> completedQuests; // List of completed quests
     private PlayerStats playerStats; // Player stats
     private PlayerInventory playerInventory; // Player inventory
+    private PlayerInput playerInput; // Player input
+    private GameObject player; // Player
 
     #endregion
 
@@ -40,6 +44,10 @@ public class QuestManager : MonoBehaviour
     {
         InitializeComponents(); // Initialize the components
         ValidateComponents(); // Check if the components are valid
+        if (questToAccept != null)
+        {
+            QuestManager.Instance.AcceptQuest(questToAccept);
+        }
     }
     #endregion
 
@@ -52,8 +60,10 @@ public class QuestManager : MonoBehaviour
 
     private void InitializeComponents()
     {
-        playerStats = FindObjectOfType<PlayerStats>(); // Get the player stats
-        playerInventory = FindObjectOfType<PlayerInventory>(); // Get the player inventory
+        player = GameObject.FindGameObjectWithTag("Player"); // Get the player
+        playerInput = player.GetComponent<PlayerInput>(); // Get the player input
+        playerStats = player.GetComponentInChildren<PlayerStats>(); // Get the player stats
+        playerInventory = player.GetComponentInChildren<PlayerInventory>(); // Get the player inventory
     }
 
     private void ValidateComponents()
@@ -65,6 +75,10 @@ public class QuestManager : MonoBehaviour
         if (playerInventory == null)
         {
             Debug.LogError("Player inventory not found");
+        }
+        if (playerInput == null)
+        {
+            Debug.LogError("Player input not found");
         }
     }
     #endregion
@@ -214,5 +228,71 @@ public class QuestManager : MonoBehaviour
     }
 
     #endregion
+   
+   
+    #region Tutorial Input Detection
+    private QuestObjective currentTutorialObjective;
 
+    private void Update()
+    {
+        CheckTutorialInput();
+    }
+
+    private void CheckTutorialInput()
+    {
+        if (currentTutorialObjective == null || !currentTutorialObjective.isTutorialObjective) 
+            return;
+
+        if (HasPerformedRequiredAction(currentTutorialObjective.requiredAction))
+        {
+            CompleteTutorialObjective();
+        }
+    }
+
+    private bool HasPerformedRequiredAction(string requiredAction)
+    {
+        if (playerInput == null) return false;
+
+        switch (requiredAction.ToLower())
+        {
+            case "move":
+                return playerInput.actions["Move"].ReadValue<Vector2>().magnitude > 0.1f;
+            case "look":
+                return playerInput.actions["Look"].ReadValue<Vector2>().magnitude > 0.1f;
+            case "interact":
+                return playerInput.actions["Interact"].WasPressedThisFrame();
+            case "attack":
+                return playerInput.actions["Attack"].WasPressedThisFrame();
+            case "crouch":
+                return playerInput.actions["Crouch"].WasPressedThisFrame();
+            case "sprint":
+                return playerInput.actions["Sprint"].WasPressedThisFrame();
+            case "inventory":
+                return playerInput.actions["Inventory"].WasPressedThisFrame();
+            default:
+                Debug.LogWarning($"Unknown required action: {requiredAction}");
+                return false;
+        }
+    }
+
+    private void CompleteTutorialObjective()
+    {
+        if (currentTutorialObjective == null)
+        {
+            Debug.LogError("Current tutorial objective is null");
+            return;
+        }
+
+        currentTutorialObjective.isCompleted = true;
+        // TODO: Add logic to move to next objective
+    }
+    #endregion
+
+    public void AcceptQuest()
+    {
+        if (questToAccept != null)
+        {
+            QuestManager.Instance.AcceptQuest(questToAccept);
+        }
+    }
 }

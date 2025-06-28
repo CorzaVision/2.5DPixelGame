@@ -91,6 +91,11 @@ public class QuestObjective
     public bool isCompleted;
     public bool isFailed;
     public QuestStatus questStatus;
+    public bool isTutorialObjective;
+    public string  tutorialInstruction;
+    public string requiredAction;
+    public TutorialObjectiveType tutorialType;
+
 
     public QuestObjective(string name, string description, QuestObjectiveType type, QuestObjectiveStatus status, int requiredAmount, int currentAmount, bool isCompleted)
     {

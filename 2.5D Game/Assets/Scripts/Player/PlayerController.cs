@@ -11,10 +11,8 @@ public class PlayerController : MonoBehaviour
     [Header("Movement Settings")]
     [SerializeField] private float moveSpeed = 5f;
     [SerializeField] private float sprintMultiplier = 1.5f;
-    [SerializeField] private float jumpForce = 5f;
     [SerializeField] private float groundCheckDistance = 0.2f;
     [SerializeField] private LayerMask groundLayer;
-    [SerializeField] private float jumpCooldown = 0.2f;
     [SerializeField] private float movementSmoothing = 0.1f;
     [SerializeField] private float rotationSpeed = 10f;
 
@@ -35,7 +33,6 @@ public class PlayerController : MonoBehaviour
 
     // Input Actions
     private InputAction moveAction;
-    private InputAction jumpAction;
     private InputAction sprintAction;
     private InputAction inventoryAction;
 
@@ -43,7 +40,6 @@ public class PlayerController : MonoBehaviour
     private Vector2 moveInput;
     private bool isGrounded;
     private float currentSpeed;
-    private float lastJumpTime;
     private Vector3 currentVelocity;
 
     #region Unity Lifecycle
@@ -110,7 +106,6 @@ public class PlayerController : MonoBehaviour
     private void SetupInputActions()
     {
         moveAction = playerInput.actions["Move"];
-        jumpAction = playerInput.actions["Jump"];
         sprintAction = playerInput.actions["Sprint"];
         inventoryAction = playerInput.actions["Inventory"];
 
@@ -157,7 +152,6 @@ public class PlayerController : MonoBehaviour
     {
         moveAction.performed += OnMovePerformed;
         moveAction.canceled += OnMoveCanceled;
-        jumpAction.performed += OnJumpPerformed;
         sprintAction.performed += OnSprintPerformed;
         sprintAction.canceled += OnSprintCanceled;
         inventoryAction.performed += OnInventoryPerformed;
@@ -170,7 +164,6 @@ public class PlayerController : MonoBehaviour
     {
         moveAction.performed -= OnMovePerformed;
         moveAction.canceled -= OnMoveCanceled;
-        jumpAction.performed -= OnJumpPerformed;
         sprintAction.performed -= OnSprintPerformed;
         sprintAction.canceled -= OnSprintCanceled;
         inventoryAction.performed -= OnInventoryPerformed;
@@ -182,7 +175,6 @@ public class PlayerController : MonoBehaviour
     private void EnableInputActions()
     {
         moveAction.Enable();
-        jumpAction.Enable();
         sprintAction.Enable();
         inventoryAction.Enable();
     }
@@ -193,7 +185,6 @@ public class PlayerController : MonoBehaviour
     private void DisableInputActions()
     {
         moveAction.Disable();
-        jumpAction.Disable();
         sprintAction.Disable();
         inventoryAction.Disable();
     }
@@ -212,13 +203,6 @@ public class PlayerController : MonoBehaviour
         moveInput = Vector2.zero;
     }
 
-    private void OnJumpPerformed(InputAction.CallbackContext context)
-    {
-        if (isGrounded)
-        {
-            Jump();
-        }
-    }
 
     private void OnSprintPerformed(InputAction.CallbackContext context)
     {
@@ -275,16 +259,6 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// Performs a jump if the jump cooldown has elapsed.
-    /// </summary>
-    private void Jump()
-    {
-        if (Time.time - lastJumpTime < jumpCooldown) return;
-        
-        rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
-        lastJumpTime = Time.time;
-    }
 
     /// <summary>
     /// Checks if the player is grounded using a raycast.

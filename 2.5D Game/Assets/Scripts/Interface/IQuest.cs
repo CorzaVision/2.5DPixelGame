@@ -35,6 +35,12 @@ public enum QuestObjectiveStatus {
     Completed,
     Failed,
 }
+public enum TutorialObjectiveType {
+    Interaction,
+    Combat,
+    Movement,
+    Inventory,
+}
 
 
 
