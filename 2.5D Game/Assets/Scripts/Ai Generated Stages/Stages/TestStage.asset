@@ -13,17 +13,32 @@ MonoBehaviour:
   m_Name: TestStage
   m_EditorClassIdentifier: 
   stageName: DevModeStage
+  currentStage: 3
+  stageType: 1
+  combatRoomCount: 20
+  treasureRoomCount: 3
+  bossRoomCount: 1
+  miniBossRoomCount: 1
   roomCount: 25
-  layoutComplexity: 0.5
-  enemyDensity: 0.3
+  combatRoomMinSize: {x: 2, y: 2}
+  combatRoomMaxSize: {x: 4, y: 4}
+  treasureRoomMinSize: {x: 2, y: 2}
+  treasureRoomMaxSize: {x: 2, y: 2}
+  bossRoomMinSize: {x: 6, y: 6}
+  bossRoomMaxSize: {x: 8, y: 8}
+  miniBossRoomMinSize: {x: 5, y: 5}
+  miniBossRoomMaxSize: {x: 6, y: 6}
   startRoomPosition: {x: 0, y: 0}
-  startRoomSize: {x: 3, y: 3}
+  startRoomSize: {x: 2, y: 2}
   playerSpawnPosition: {x: 1, y: 1}
   mainExitPosition: {x: 15, y: 0}
-  exitRoomSize: {x: 3, y: 3}
+  exitRoomSize: {x: 2, y: 2}
   roomSize: {x: 3, y: 3}
   minEnemiesPerRoom: 2
   maxEnemiesPerRoom: 5
+  bossRoomSize: {x: 6, y: 8}
+  miniBossRoomSize: {x: 5, y: 6}
+  bossRoomIsFinalRoom: 1
   allowBranches: 1
   branchChance: 0.3
   maxBranchDepth: 2

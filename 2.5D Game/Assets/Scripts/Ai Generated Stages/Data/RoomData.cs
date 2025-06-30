@@ -10,13 +10,19 @@ public class RoomData
     public List<Vector2Int> connectedRooms = new List<Vector2Int>();
     public List<Vector2Int> enemyPositions = new List<Vector2Int>();
     public List<Vector2Int> doorPositions = new List<Vector2Int>();
-    public RoomType roomType;
+    public RoomCategory roomCategory;
         
 }
-public enum RoomType
+public enum RoomCategory
 {
-    Combat,
-    Treasure,
-    Boss,
-    Safe,
+    Start,      // Entry point
+    Combat,     // Enemy encounters
+    Treasure,   // Loot/items
+    MiniBoss,   // Mini-boss encounter
+    Boss,       // Main boss encounter
+    Exit,       // Stage exit
+    Corridor,   // Connection rooms
+    Puzzle,     // Puzzle rooms
+    Trap,       // Hazard rooms
+    Filler      // Empty/decorative
 }

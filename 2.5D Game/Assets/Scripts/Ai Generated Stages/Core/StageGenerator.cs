@@ -1,7 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 
-public class StageGenerator : MonoBehaviour, IRoomGenerator, IStageGenerator
+public class StageGenerator : MonoBehaviour
 {
     [Header("Grid Settings")]
     public int gridSize = 20;
@@ -13,7 +13,7 @@ public class StageGenerator : MonoBehaviour, IRoomGenerator, IStageGenerator
     
     [Header("Generation Settings")]
     public StageData stageData;
-    public RoomType roomType;
+    public RoomCategory roomCategory;
     
     [Header("Debug")]
     public bool showDebugInfo = true;
@@ -67,7 +67,7 @@ public class StageGenerator : MonoBehaviour, IRoomGenerator, IStageGenerator
         Vector2Int startPos = stageData.startRoomPosition;
         Vector2Int startSize = stageData.startRoomSize;
         
-        PlaceRoom(startPos, startSize, roomType);
+        PlaceRoom(startPos, startSize, RoomCategory.Start);
         currentLayout.startRoom = currentLayout.rooms[0];
         currentLayout.playerSpawnPosition = startPos + stageData.playerSpawnPosition;
         
@@ -99,7 +99,7 @@ public class StageGenerator : MonoBehaviour, IRoomGenerator, IStageGenerator
             && attempts < maxAttempts
         );
 
-        PlaceRoom(exitPos, exitSize, roomType);
+        PlaceRoom(exitPos, exitSize, RoomCategory.Exit);
         currentLayout.exitRoom = currentLayout.rooms[currentLayout.rooms.Count - 1];
         currentLayout.mainExitPosition = exitPos;
 
@@ -109,13 +109,13 @@ public class StageGenerator : MonoBehaviour, IRoomGenerator, IStageGenerator
         }
     }
     
-    void PlaceRoom(Vector2Int position, Vector2Int roomSize, RoomType roomType)
+    void PlaceRoom(Vector2Int position, Vector2Int roomSize, RoomCategory roomCategory)
     {
         RoomData room = new RoomData
         {
             position = position,
             size = roomSize,
-            roomType = roomType
+            roomCategory = roomCategory
         };
         
         // Mark grid cells as occupied
@@ -134,7 +134,7 @@ public class StageGenerator : MonoBehaviour, IRoomGenerator, IStageGenerator
         
         if (showDebugInfo)
         {
-            Debug.Log($"Placed {roomType} room at {position} with size {roomSize}");
+            Debug.Log($"Placed {roomCategory} room at {position} with size {roomSize}");
         }
     }
     
@@ -153,7 +153,9 @@ public class StageGenerator : MonoBehaviour, IRoomGenerator, IStageGenerator
 
             if (roomPos != new Vector2Int(-1, -1)) // -1, -1 means no valid position found
             {
-                PlaceRoom(roomPos, roomSize, roomType);
+                RoomCategory type = RoomCategory.Combat;
+                if (Random.value < 0.1f) type = RoomCategory.Treasure; // 10% chance for treasure
+                PlaceRoom(roomPos, roomSize, type);
             }
             else
             {
@@ -334,19 +336,40 @@ public class StageGenerator : MonoBehaviour, IRoomGenerator, IStageGenerator
         foreach (RoomData room in currentLayout.rooms)
         {
             // Different colors for different room types
-            switch (room.roomType)
+            switch (room.roomCategory)
             {
-                case RoomType.Safe:
-                    Gizmos.color = Color.green; // Starting room
+                case RoomCategory.Start:
+                    Gizmos.color = Color.green;
                     break;
-                case RoomType.Boss:
-                    Gizmos.color = Color.red; // Exit room
+                case RoomCategory.Exit:
+                    Gizmos.color = Color.red;
                     break;
-                case RoomType.Combat:
-                    Gizmos.color = Color.yellow; // Combat rooms
+                case RoomCategory.Combat:
+                    Gizmos.color = Color.yellow;
                     break;
-                case RoomType.Treasure:
-                    Gizmos.color = Color.cyan; // Treasure rooms
+                case RoomCategory.Treasure:
+                    Gizmos.color = Color.cyan;
+                    break;
+                case RoomCategory.MiniBoss:
+                    Gizmos.color = Color.magenta;
+                    break;
+                case RoomCategory.Boss:
+                    Gizmos.color = new Color(1.0f, 0.5f, 0.0f); // Orange
+                    break;
+                case RoomCategory.Corridor:
+                    Gizmos.color = Color.white;
+                    break;
+                case RoomCategory.Puzzle:
+                    Gizmos.color = Color.blue;
+                    break;
+                case RoomCategory.Trap:
+                    Gizmos.color = new Color(0.5f, 0, 0); // Dark red
+                    break;
+                case RoomCategory.Filler:
+                    Gizmos.color = Color.gray;
+                    break;
+                default:
+                    Gizmos.color = Color.white;
                     break;
             }
             
@@ -447,8 +470,76 @@ public class StageGenerator : MonoBehaviour, IRoomGenerator, IStageGenerator
         }
         return false;
     }
-}
 
+    public RoomData GenerateRoom(Vector2Int position, Vector2Int size, RoomCategory roomCategory)
+    {
+        RoomData room = new RoomData
+        {
+            position = position,
+            size = size,
+            roomCategory = roomCategory
+        };
+
+        // Optionally, mark grid as occupied if you want to track this
+        for (int x = position.x; x < position.x + size.x; x++)
+        {
+            for (int y = position.y; y < position.y + size.y; y++)
+            {
+                if (x >= 0 && x < gridSize && y >= 0 && y < gridSize)
+                {
+                    occupiedGrid[x, y] = true;
+                }
+            }
+        }
+
+        // Optionally, add to currentLayout.rooms if that's your workflow
+        // currentLayout.rooms.Add(room);
+
+        return room;
+    }
+
+    // Placeholder for future prefab instantiation
+    void PlaceRoomTile(int x, int y, RoomCategory category)
+    {
+        // In the future: Instantiate the correct prefab here
+        // For now: Debug.Log($"Would place {category} tile at ({x},{y})");
+    }
+
+    void PlaceHallwayTile(int x, int y)
+    {
+        // In the future: Instantiate the hallway prefab here
+        // For now: Debug.Log($"Would place hallway tile at ({x},{y})");
+    }
+
+    // Use these in your room/hallway generation:
+    void PrepareRoomTiles()
+    {
+        foreach (RoomData room in currentLayout.rooms)
+        {
+            for (int x = room.position.x; x < room.position.x + room.size.x; x++)
+            {
+                for (int y = room.position.y; y < room.position.y + room.size.y; y++)
+                {
+                    PlaceRoomTile(x, y, room.roomCategory);
+                }
+            }
+        }
+    }
+
+    void PrepareHallwayTiles()
+    {
+        foreach (HallwayData hallway in currentLayout.hallways)
+        {
+            foreach (Vector2Int cell in hallway.path)
+            {
+                if (!IsInsideAnyRoom(cell))
+                {
+                    PlaceHallwayTile(cell.x, cell.y);
+                }
+            }
+        }
+    }
+}
 
 
 

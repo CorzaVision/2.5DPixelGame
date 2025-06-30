@@ -1,0 +1,79 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &3989410509038504425
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2234353949619850332}
+  - component: {fileID: 7190965122250264892}
+  m_Layer: 0
+  m_Name: DungeonTestManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2234353949619850332
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3989410509038504425}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 764.6376, y: 923.83215, z: -2174.797}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &7190965122250264892
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3989410509038504425}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a76daa4be01a5b940a0cdd6747038ee4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  gridSize: 50
+  cellSize: 1
+  minRoomSize: {x: 2, y: 2}
+  maxRoomSize: {x: 4, y: 4}
+  stageData: {fileID: 11400000, guid: 09a6acb66db8f0d40934482534b02fe0, type: 2}
+  roomCategory: 0
+  showDebugInfo: 1
+  generateOnStart: 1
+  worldOffset: {x: 0, y: 0}
+  currentLayout:
+    rooms: []
+    hallways: []
+    stageSize: {x: 0, y: 0}
+    startRoom:
+      position: {x: 0, y: 0}
+      size: {x: 0, y: 0}
+      connectedHallways: []
+      connectedRooms: []
+      enemyPositions: []
+      doorPositions: []
+      roomCategory: 0
+    exitRoom:
+      position: {x: 0, y: 0}
+      size: {x: 0, y: 0}
+      connectedHallways: []
+      connectedRooms: []
+      enemyPositions: []
+      doorPositions: []
+      roomCategory: 0
+    playerSpawnPosition: {x: 0, y: 0}
+    mainExitPosition: {x: 0, y: 0}
+    protectedPositions: []
+  lastExitEdge: 1
