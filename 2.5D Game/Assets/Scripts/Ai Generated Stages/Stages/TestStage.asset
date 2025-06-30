@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: TestStage
   m_EditorClassIdentifier: 
   stageName: DevModeStage
-  currentStage: 3
+  currentStage: 1
   stageType: 1
   combatRoomCount: 20
   treasureRoomCount: 3
@@ -40,5 +40,5 @@ MonoBehaviour:
   miniBossRoomSize: {x: 5, y: 6}
   bossRoomIsFinalRoom: 1
   allowBranches: 1
-  branchChance: 0.3
+  branchChance: 0.8
   maxBranchDepth: 2

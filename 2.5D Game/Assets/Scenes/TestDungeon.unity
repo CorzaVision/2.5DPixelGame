@@ -430,6 +430,10 @@ PrefabInstance:
       value: DungeonTestManager
       objectReference: {fileID: 0}
     - target: {fileID: 7190965122250264892, guid: 8ef5dc4d66e94a84995cd3b2c5b30ac5, type: 3}
+      propertyPath: cellSize
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 7190965122250264892, guid: 8ef5dc4d66e94a84995cd3b2c5b30ac5, type: 3}
       propertyPath: gridSize
       value: 30
       objectReference: {fileID: 0}
