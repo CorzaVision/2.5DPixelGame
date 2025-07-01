@@ -7,6 +7,7 @@ public class CombatRoom : MonoBehaviour
     private float cellSize;
     private int gridSize;
     private StageGenerator stageGenerator;
+    public int roomIndex;
 
     public GameObject floorPrefab;
     public GameObject wallStraightPrefab;
@@ -33,6 +34,7 @@ public class CombatRoom : MonoBehaviour
 
     public bool adjacentDoorBottom;
     public int adjacentDoorXBottom = -1;
+    
 
     public void SetupRoom(Vector2Int startPos, Vector2Int maxAllowedSize, float cellSize, int gridSize, StageGenerator stageGenerator)
     {
@@ -87,6 +89,7 @@ public class CombatRoom : MonoBehaviour
                     else
                     {
                         prefabToSpawn = wallStraightPrefab;
+                        Debug.Log("Wall Straight Left");
                     }
                 }
                 else if (atRight)
@@ -99,6 +102,7 @@ public class CombatRoom : MonoBehaviour
                     else
                     {
                         prefabToSpawn = wallStraightPrefab;
+                        Debug.Log("Wall Straight Right");
                     }
                 }
                 else if (atTop)
@@ -111,6 +115,7 @@ public class CombatRoom : MonoBehaviour
                     else
                     {
                         prefabToSpawn = wallStraightPrefab;
+                        Debug.Log("Wall Straight Top");
                     }
                 }
                 else if (atBottom)
@@ -123,6 +128,7 @@ public class CombatRoom : MonoBehaviour
                     else
                     {
                         prefabToSpawn = wallStraightPrefab;
+                        Debug.Log("Wall Straight Bottom");
                     }
                 }
 

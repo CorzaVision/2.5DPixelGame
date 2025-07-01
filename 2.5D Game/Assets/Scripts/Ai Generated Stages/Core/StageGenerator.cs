@@ -1,10 +1,12 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 public class StageGenerator : MonoBehaviour
 {
     [Header("Grid Settings")]
     [SerializeField] private int gridSize = 20;
     [SerializeField] private float cellSize = 3.0f;
+    [SerializeField] private int roomCount = 10;
 
     public GameObject combatRoomPrefab;
 
@@ -13,31 +15,38 @@ public class StageGenerator : MonoBehaviour
 
     private void Start()
     {
-        Vector2Int roomSize = new Vector2Int(4, 4); // Not strictly needed, but for clarity
-        Vector2Int gridCenter = new Vector2Int(gridSize / 2, gridSize / 2);
+        int roomSize = 4;
+        List<CombatRoom> rooms = new List<CombatRoom>();
 
-        // Room 1: Centered
-        GameObject roomObj1 = Instantiate(combatRoomPrefab, Vector3.zero, Quaternion.identity, this.transform);
-        CombatRoom room1 = roomObj1.GetComponent<CombatRoom>();
-        room1.minRoomSize = 4;
-        room1.maxRoomSize = 4;
-        room1.doorRight = true;
-        room1.doorY = 2; // For example, middle of the wall
-        room1.SetupRoom(gridCenter, roomSize, cellSize, gridSize, this);
-        Debug.Log("Room 1: " + room1.doorRight + " " + room1.doorY);
+        for (int i = 0; i < roomCount; i++)
+        {
+            Vector2Int startPos = new Vector2Int(gridSize / 2 + i * roomSize, gridSize / 2);
+            GameObject roomObj = Instantiate(combatRoomPrefab, Vector3.zero, Quaternion.identity, this.transform);
+            CombatRoom room = roomObj.GetComponent<CombatRoom>();
+            room.minRoomSize = roomSize;
+            room.maxRoomSize = roomSize;
+            room.roomIndex = i;
+            Debug.Log($"Assigned roomIndex {room.roomIndex} to room {i}");
+            rooms.Add(room);            
+        }
 
-        // Room 2: Directly to the right of Room 1
-        Vector2Int room2StartPos = gridCenter + new Vector2Int(4, 0); // Offset by width of room 1
-        GameObject roomObj2 = Instantiate(combatRoomPrefab, Vector3.zero, Quaternion.identity, this.transform);
-        CombatRoom room2 = roomObj2.GetComponent<CombatRoom>();
-        room2.minRoomSize = 4;
-        room2.maxRoomSize = 4;
-        room2.doorLeft = false; // This room keeps its wall
-        room2.doorY = 2; // Must match room1's doorY for alignment
-        room2.adjacentDoorLeft = true;
-        room2.adjacentDoorY = 2;
-        room2.SetupRoom(room2StartPos, roomSize, cellSize, gridSize, this);
-        Debug.Log("Room 2: " + room2.doorLeft + " " + room2.doorY);
+        for (int i = 1; i < roomCount; i++)
+        {
+            CombatRoom prevRoom = rooms[i - 1];
+            CombatRoom room = rooms[i];
+            int doorY = roomSize / 2;
+
+            prevRoom.doorRight = true;
+            prevRoom.doorY = doorY;
+            room.adjacentDoorLeft = true;
+            room.adjacentDoorY = doorY;
+        }
+
+        for (int i = 0; i < roomCount; i++)
+        {
+            Vector2Int startPos = new Vector2Int(gridSize / 2 + i * roomSize, gridSize / 2);
+            rooms[i].SetupRoom(startPos, new Vector2Int(roomSize, roomSize), cellSize, gridSize, this);
+        }
     }
 
     public Vector3 GridToWorld(Vector2Int gridPos)
