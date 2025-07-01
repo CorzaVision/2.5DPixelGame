@@ -4,7 +4,7 @@ using UnityEngine.UI;
 public class DungeonTestUI : MonoBehaviour
 {
     [Header("References")]
-    public StageGenerator stageGenerator;
+    //public StageGenerator stageGenerator;
     public Text debugText;
     
     [Header("Grid Info")]
@@ -25,7 +25,7 @@ public class DungeonTestUI : MonoBehaviour
     void Start()
     {
         // Auto-generate on start
-        if (stageGenerator != null)
+        //if (stageGenerator != null)
         {
             TestGeneration();
         }
@@ -35,7 +35,7 @@ public class DungeonTestUI : MonoBehaviour
     {
         Debug.Log("=== STARTING DUNGEON GENERATION TEST ===");
         
-        if (stageGenerator.stageData == null)
+        //if (stageGenerator.stageData == null)
         {
             Debug.LogError("StageData is not assigned!");
             return;
