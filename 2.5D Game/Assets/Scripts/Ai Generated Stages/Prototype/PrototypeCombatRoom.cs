@@ -1,13 +1,13 @@
 using UnityEngine;
 using System.Collections.Generic;
 
-public class CombatRoom : MonoBehaviour, IRoomGenerator
+public class PrototypeCombatRoom : MonoBehaviour
 {
     private Vector2Int startPos;
     private Vector2Int roomSize;
     private float cellSize;
     private int gridSize;
-    private StageGenerator stageGenerator;
+    private GeneratorPrototype generatorPrototype;
 
     public GameObject floorPrefab;
     public GameObject wallStraightPrefab;
@@ -40,19 +40,23 @@ public class CombatRoom : MonoBehaviour, IRoomGenerator
     
     private TileType[,] tileTypes;
 
-    public void SetupRoom(Vector2Int startPos, Vector2Int size, float cellSize, int gridSize, StageGenerator stageGenerator, Vector2Int roomGridPos)
+    public void SetupRoom(Vector2Int startPos, Vector2Int size, float cellSize, int gridSize, GeneratorPrototype generatorPrototype, Vector2Int roomGridPos)
     {
         this.startPos = startPos;
         this.cellSize = cellSize;
         this.gridSize = gridSize;
-        this.stageGenerator = stageGenerator;
+        this.generatorPrototype = generatorPrototype;
         this.roomSize = size;
         
         tileTypes = new TileType[roomSize.x, roomSize.y];
         
-        // Get door data for this room
-        Dictionary<RoomSide, DoorInfo> doorData = stageGenerator.GetDoorDataForRoom(roomGridPos);
-        
+        // Get door data for this room (from generator only)
+        Dictionary<RoomSide, DoorInfo> doorData = generatorPrototype.GetDoorDataForRoom(roomGridPos);
+        Debug.Log($"[ROOM-SETUP] Room at {startPos} received door data:");
+        foreach (var kvp in doorData)
+        {
+            Debug.Log($"  Side {kvp.Key}: hasDoor={kvp.Value.hasDoor}, localPos={kvp.Value.doorPosition}");
+        }
         GenerateRoomPrefabs(doorData);
     }
 
@@ -65,7 +69,7 @@ public class CombatRoom : MonoBehaviour, IRoomGenerator
             for (int y = 0; y < roomSize.y; y++)
             {
                 Vector2Int gridPos = startPos + new Vector2Int(x, y);
-                Vector3 worldPos = stageGenerator.GridToWorld(gridPos);
+                Vector3 worldPos = generatorPrototype.GridToWorld(gridPos);
 
                 bool atLeft = x == 0;
                 bool atRight = x == roomSize.x - 1;
@@ -101,58 +105,50 @@ public class CombatRoom : MonoBehaviour, IRoomGenerator
                     if (HasDoorAtPosition(doorData, RoomSide.Left, x, y))
                     {
                         prefabToSpawn = floorPrefab; // or doorPrefab
-                        Debug.Log("Door Left");
                         SetTileTypeAt(new Vector2Int(x, y), TileType.Door);
                     }
                     else
                     {
                         prefabToSpawn = wallStraightPrefab;
-                        Debug.Log("Wall Straight Left");
                         SetTileTypeAt(new Vector2Int(x, y), TileType.Wall);
                     }
                 }
                 else if (atRight)
                 {
-                    if (DoorRight && y == doorY && y < roomSize.y)
+                    if (HasDoorAtPosition(doorData, RoomSide.Right, x, y))
                     {
                         prefabToSpawn = floorPrefab;
-                        Debug.Log("Door Right");
                         SetTileTypeAt(new Vector2Int(x, y), TileType.Door);
                     }
                     else
                     {
                         prefabToSpawn = wallStraightPrefab;
-                        Debug.Log("Wall Straight Right");
                         SetTileTypeAt(new Vector2Int(x, y), TileType.Wall);
                     }
                 }
                 else if (atTop)
                 {
-                    if (DoorTop && x == doorX && x < roomSize.x)
+                    if (HasDoorAtPosition(doorData, RoomSide.Top, x, y))
                     {
                         prefabToSpawn = floorPrefab; // or doorPrefab
-                        Debug.Log("Door Top");
                         SetTileTypeAt(new Vector2Int(x, y), TileType.Door);
                     }
                     else
                     {
                         prefabToSpawn = wallStraightPrefab;
-                        Debug.Log("Wall Straight Top");
                         SetTileTypeAt(new Vector2Int(x, y), TileType.Wall);
                     }
                 }
                 else if (atBottom)
                 {
-                    if (DoorBottom && x == doorX && x < roomSize.x)
+                    if (HasDoorAtPosition(doorData, RoomSide.Bottom, x, y))
                     {
                         prefabToSpawn = floorPrefab; // or doorPrefab
-                        Debug.Log("Door Bottom");
                         SetTileTypeAt(new Vector2Int(x, y), TileType.Door);
                     }
                     else
                     {
                         prefabToSpawn = wallStraightPrefab;
-                        Debug.Log("Wall Straight Bottom");
                         SetTileTypeAt(new Vector2Int(x, y), TileType.Wall);
                     }
                 }
@@ -202,7 +198,11 @@ public class CombatRoom : MonoBehaviour, IRoomGenerator
     public void SetTileTypeAt(Vector2Int localPos, TileType tileType)
     {
         if (localPos.x >= 0 && localPos.x < roomSize.x && localPos.y >= 0 && localPos.y < roomSize.y)
+        {
             tileTypes[localPos.x, localPos.y] = tileType;
+            if (tileType == TileType.Door)
+                Debug.Log($"Set door tile at local {localPos} in room at {startPos}");
+        }
     }
 
     public TileType GetTileTypeAt(Vector2Int localPos)
@@ -227,4 +227,23 @@ public class CombatRoom : MonoBehaviour, IRoomGenerator
         
         return roomTiles;
     }
+
+#if UNITY_EDITOR
+    private void OnDrawGizmosSelected()
+    {
+        if (tileTypes == null) return;
+        Gizmos.color = Color.magenta;
+        for (int x = 0; x < roomSize.x; x++)
+        {
+            for (int y = 0; y < roomSize.y; y++)
+            {
+                if (tileTypes[x, y] == TileType.Door)
+                {
+                    Vector3 worldPos = transform.position + new Vector3((x - roomSize.x / 2f + 0.5f) * cellSize, 0.2f, (y - roomSize.y / 2f + 0.5f) * cellSize);
+                    Gizmos.DrawCube(worldPos, new Vector3(cellSize * 0.3f, 0.2f, cellSize * 0.3f));
+                }
+            }
+        }
+    }
+#endif
 }
